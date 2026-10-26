@@ -10,151 +10,253 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 
-<PageTitle>Admin Panel — CYH Care</PageTitle>
+<PageTitle>CYH Care — Admin Mission Control</PageTitle>
 
 <div class="container-fluid py-4 px-md-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-            <h3 class="fw-bold mb-1"><i class="bi bi-shield-check text-primary me-2"></i>Admin Mission Control</h3>
-            <p class="text-muted mb-0">Live operations, helper KYC verification, active jobs & payouts</p>
+    <!-- Executive Top Header -->
+    <div class="card border-0 shadow-sm bg-dark text-white rounded-4 p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <div class="d-inline-flex align-items-center gap-2 mb-2">
+                    <span class="pulse-live"></span>
+                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 small">
+                        LIVE TELEMETRY STREAM ACTIVE
+                    </span>
+                    <span class="text-white-50 small">| SQL Server + Dapper (Zero EF Core)</span>
+                </div>
+                <h2 class="fw-bold mb-1 brand-font text-white">
+                    <i class="bi bi-shield-check text-primary me-2"></i>Mission Control Dashboard
+                </h2>
+                <p class="text-white-50 mb-0 small">
+                    City-wide emergency companion dispatch, helper KYC verification, and telemetry audit
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-light btn-sm px-3 rounded-pill" @onclick="LoadDashboardData">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Sync Telemetry
+                </button>
+            </div>
         </div>
-        <button class="btn btn-outline-primary btn-sm" @onclick="LoadDashboardData">
-            <i class="bi bi-arrow-clockwise me-1"></i> Refresh Data
-        </button>
     </div>
 
-    <!-- KPI Summary Row -->
+    <!-- KPI Metric Cards -->
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm bg-primary text-white p-3">
-                <div class="d-flex justify-content-between">
+            <div class="card admin-kpi-card bg-primary text-white p-3">
+                <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <div class="text-white-50 small text-uppercase fw-bold">Active Jobs</div>
-                        <h2 class="fw-bold mb-0">@(summary?.ActiveJobsCount ?? 0)</h2>
+                        <div class="text-white-50 small fw-bold text-uppercase">Active Companion Jobs</div>
+                        <h2 class="display-6 fw-bold my-1">@(summary?.ActiveJobsCount ?? 0)</h2>
+                        <span class="small text-white-70"><i class="bi bi-geo-alt-fill text-warning me-1"></i>Live on city map</span>
                     </div>
-                    <div class="fs-1 opacity-50"><i class="bi bi-activity"></i></div>
+                    <div class="p-3 bg-white bg-opacity-10 rounded-circle fs-3">
+                        <i class="bi bi-activity"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm bg-success text-white p-3">
-                <div class="d-flex justify-content-between">
+            <div class="card admin-kpi-card bg-success text-white p-3">
+                <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <div class="text-white-50 small text-uppercase fw-bold">On-Duty Helpers</div>
-                        <h2 class="fw-bold mb-0">@(summary?.OnDutyHelpersCount ?? 0)</h2>
+                        <div class="text-white-50 small fw-bold text-uppercase">On-Duty Verified Helpers</div>
+                        <h2 class="display-6 fw-bold my-1">@(summary?.OnDutyHelpersCount ?? 0)</h2>
+                        <span class="small text-white-70"><i class="bi bi-broadcast me-1"></i>SignalR 10s Pinging</span>
                     </div>
-                    <div class="fs-1 opacity-50"><i class="bi bi-person-check-fill"></i></div>
+                    <div class="p-3 bg-white bg-opacity-10 rounded-circle fs-3">
+                        <i class="bi bi-person-check-fill"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm bg-warning text-dark p-3">
-                <div class="d-flex justify-content-between">
+            <div class="card admin-kpi-card bg-warning text-dark p-3">
+                <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <div class="text-muted small text-uppercase fw-bold">Pending KYC</div>
-                        <h2 class="fw-bold mb-0">@(summary?.PendingKycCount ?? pendingKycList.Count)</h2>
+                        <div class="text-muted small fw-bold text-uppercase">KYC Verification Queue</div>
+                        <h2 class="display-6 fw-bold my-1">@(summary?.PendingKycCount ?? pendingKycList.Count)</h2>
+                        <span class="small text-danger fw-bold"><i class="bi bi-exclamation-circle-fill me-1"></i>Requires approval</span>
                     </div>
-                    <div class="fs-1 opacity-50"><i class="bi bi-person-exclamation"></i></div>
+                    <div class="p-3 bg-dark bg-opacity-10 rounded-circle fs-3">
+                        <i class="bi bi-person-vcard-fill"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm bg-dark text-white p-3">
-                <div class="d-flex justify-content-between">
+            <div class="card admin-kpi-card bg-dark text-white p-3">
+                <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <div class="text-white-50 small text-uppercase fw-bold">Completed Today</div>
-                        <h2 class="fw-bold mb-0">@(summary?.CompletedTodayCount ?? 0)</h2>
+                        <div class="text-white-50 small fw-bold text-uppercase">Completed Missions Today</div>
+                        <h2 class="display-6 fw-bold my-1">@(summary?.CompletedTodayCount ?? 0)</h2>
+                        <span class="small text-success"><i class="bi bi-check2-circle me-1"></i>100% Payout calculated</span>
                     </div>
-                    <div class="fs-1 opacity-50"><i class="bi bi-calendar2-check"></i></div>
+                    <div class="p-3 bg-white bg-opacity-10 rounded-circle fs-3">
+                        <i class="bi bi-award-fill"></i>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Admin Nav Tabs -->
-    <ul class="nav nav-tabs mb-4">
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-pills mb-4 p-1 bg-white rounded-pill shadow-sm border d-inline-flex">
         <li class="nav-item">
-            <button class="nav-link @(activeTab == "livemap" ? "active fw-bold" : "")" @onclick='() => SwitchTab("livemap")'>
-                <i class="bi bi-map-fill me-1 text-primary"></i> Live City Map
+            <button class="nav-link rounded-pill @(activeTab == "livemap" ? "active" : "")" @onclick='() => SwitchTab("livemap")'>
+                <i class="bi bi-map-fill me-1"></i> Live City Radar
             </button>
         </li>
         <li class="nav-item">
-            <button class="nav-link @(activeTab == "kyc" ? "active fw-bold" : "")" @onclick='() => SwitchTab("kyc")'>
-                <i class="bi bi-person-lines-fill me-1 text-warning"></i> Helper KYC (@pendingKycList.Count)
+            <button class="nav-link rounded-pill @(activeTab == "kyc" ? "active" : "")" @onclick='() => SwitchTab("kyc")'>
+                <i class="bi bi-shield-lock-fill me-1"></i> Helper KYC Queue
+                @if (pendingKycList.Any())
+                {
+                    <span class="badge bg-danger ms-1">@pendingKycList.Count</span>
+                }
             </button>
         </li>
         <li class="nav-item">
-            <button class="nav-link @(activeTab == "jobs" ? "active fw-bold" : "")" @onclick='() => SwitchTab("jobs")'>
-                <i class="bi bi-list-task me-1"></i> Active Jobs (@activeJobs.Count)
+            <button class="nav-link rounded-pill @(activeTab == "jobs" ? "active" : "")" @onclick='() => SwitchTab("jobs")'>
+                <i class="bi bi-clipboard2-pulse-fill me-1"></i> Active Operations (@activeJobs.Count)
             </button>
         </li>
     </ul>
 
-    <!-- Tab 1: Live City Map -->
+    <!-- Tab 1: Live City Radar Map -->
     @if (activeTab == "livemap")
     {
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0">Real-Time Assistance & Helper Telemetry Map</h5>
-                <span class="badge bg-success"><i class="bi bi-broadcast me-1"></i> Live Stream</span>
+        <div class="row g-4">
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold mb-0">City Operations Radar (OpenStreetMap)</h5>
+                            <small class="text-muted">Displaying patient target destinations & companion telemetry</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 small">
+                            <span><span class="badge bg-success p-1 rounded-circle me-1">&nbsp;</span> Job Destination</span>
+                            <span><span class="badge bg-primary p-1 rounded-circle me-1">&nbsp;</span> Helper Location</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="adminLiveMap" style="height: 600px; width: 100%;"></div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body p-0">
-                <div id="adminLiveMap" style="height: 550px; width: 100%;"></div>
+
+            <!-- Side Card for Quick Focus -->
+            <div class="col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-header bg-white py-3 border-0">
+                        <h6 class="fw-bold mb-0">Ongoing Missions</h6>
+                    </div>
+                    <div class="card-body p-2 overflow-auto" style="max-height: 540px;">
+                        @if (!activeJobs.Any())
+                        {
+                            <div class="text-center py-5 text-muted small">
+                                <i class="bi bi-clock-history fs-3 mb-2 d-block"></i>
+                                No ongoing hospital sessions at this moment.
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var job in activeJobs)
+                            {
+                                <div class="p-3 mb-2 rounded-3 bg-light border cursor-pointer" @onclick="() => FocusJob(job)">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <span class="badge bg-primary small">@job.Status</span>
+                                        <small class="text-muted">#@job.JobId</small>
+                                    </div>
+                                    <div class="fw-bold text-dark small text-truncate">@job.ServiceType</div>
+                                    <div class="text-muted small text-truncate"><i class="bi bi-geo-alt text-danger me-1"></i>@job.Address</div>
+                                    <div class="mt-2 pt-2 border-top d-flex justify-content-between small text-secondary">
+                                        <span>Helper: <strong>@(job.HelperName ?? "Assigned")</strong></span>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     }
 
-    <!-- Tab 2: Helper KYC Verification -->
+    <!-- Tab 2: Helper KYC Queue -->
     @if (activeTab == "kyc")
     {
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3 border-0">
-                <h5 class="fw-bold mb-0">Pending Helper KYC Applications</h5>
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-0">Helper Background & KYC Verification</h5>
+                    <small class="text-muted">Review helper credentials before allowing duty activation</small>
+                </div>
             </div>
             <div class="card-body p-0">
                 @if (!pendingKycList.Any())
                 {
                     <div class="text-center py-5 text-muted">
-                        <i class="bi bi-check-circle fs-1 text-success"></i>
-                        <h6 class="mt-2 fw-bold">All KYC Applications are Processed</h6>
-                        <p class="small">No pending verification requests at this moment.</p>
+                        <div class="d-inline-flex p-3 rounded-circle bg-success bg-opacity-10 text-success mb-2">
+                            <i class="bi bi-shield-check fs-2"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark">Queue is Clear!</h5>
+                        <p class="small text-muted">All helper profiles have been verified and processed.</p>
                     </div>
                 }
                 else
                 {
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light small">
+                            <thead class="table-light small text-uppercase text-muted">
                                 <tr>
-                                    <th>Helper ID</th>
-                                    <th>Full Name</th>
-                                    <th>Phone</th>
-                                    <th>Email</th>
+                                    <th>Helper</th>
+                                    <th>Contact Details</th>
                                     <th>Hourly Rate</th>
                                     <th>Registered Date</th>
-                                    <th class="text-end">Actions</th>
+                                    <th>KYC Status</th>
+                                    <th class="text-end">Verification Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var item in pendingKycList)
                                 {
                                     <tr>
-                                        <td>#@item.HelperId</td>
-                                        <td class="fw-bold">@item.FullName</td>
-                                        <td>@item.Phone</td>
-                                        <td>@item.Email</td>
-                                        <td>₹@item.HourlyRate/hr</td>
-                                        <td>@item.RegisteredAt.ToLocalTime().ToString("g")</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="bg-primary text-white rounded-circle p-2 text-center fw-bold" style="width: 36px; height: 36px; font-size: 13px;">
+                                                    @item.FullName.Substring(0, Math.Min(2, item.FullName.Length)).ToUpper()
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold text-dark">@item.FullName</div>
+                                                    <small class="text-muted">Helper ID: #@item.HelperId</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div><i class="bi bi-telephone-fill me-1 text-primary small"></i> @item.Phone</div>
+                                            <small class="text-muted"><i class="bi bi-envelope me-1"></i> @item.Email</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border fw-bold fs-6">
+                                                ₹@item.HourlyRate / hr
+                                            </span>
+                                        </td>
+                                        <td class="small text-muted">
+                                            @item.RegisteredAt.ToLocalTime().ToString("g")
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-warning text-dark px-2 py-1">
+                                                <i class="bi bi-clock-history me-1"></i> Pending Review
+                                            </span>
+                                        </td>
                                         <td class="text-end">
-                                            <button class="btn btn-sm btn-success me-1" @onclick='() => ProcessKyc(item.HelperId, "Approved")'>
-                                                <i class="bi bi-check-lg me-1"></i> Approve
+                                            <button class="btn btn-success btn-sm px-3 rounded-pill me-1 shadow-sm" @onclick='() => ProcessKyc(item.HelperId, "Approved")'>
+                                                <i class="bi bi-check-circle-fill me-1"></i> Approve KYC
                                             </button>
-                                            <button class="btn btn-sm btn-outline-danger" @onclick='() => ProcessKyc(item.HelperId, "Rejected")'>
-                                                <i class="bi bi-x-lg me-1"></i> Reject
+                                            <button class="btn btn-outline-danger btn-sm px-3 rounded-pill" @onclick='() => ProcessKyc(item.HelperId, "Rejected")'>
+                                                <i class="bi bi-x-circle me-1"></i> Reject
                                             </button>
                                         </td>
                                     </tr>
@@ -167,47 +269,59 @@
         </div>
     }
 
-    <!-- Tab 3: Active Jobs -->
+    <!-- Tab 3: Active Operations Monitor -->
     @if (activeTab == "jobs")
     {
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm rounded-4">
             <div class="card-header bg-white py-3 border-0">
-                <h5 class="fw-bold mb-0">Currently Active Assistance Requests</h5>
+                <h5 class="fw-bold mb-0">Active Operations Monitor</h5>
             </div>
             <div class="card-body p-0">
                 @if (!activeJobs.Any())
                 {
                     <div class="text-center py-5 text-muted">
-                        <i class="bi bi-inbox fs-1"></i>
-                        <h6 class="mt-2 fw-bold">No Active Jobs Currently</h6>
-                        <p class="small">When users post jobs and helpers accept, they will appear here live.</p>
+                        <i class="bi bi-inbox fs-1 mb-2"></i>
+                        <h6 class="fw-bold text-dark">No Active Missions</h6>
+                        <p class="small text-muted">Active jobs will update automatically in real-time.</p>
                     </div>
                 }
                 else
                 {
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light small">
+                            <thead class="table-light small text-uppercase text-muted">
                                 <tr>
-                                    <th>Job ID</th>
-                                    <th>Service</th>
-                                    <th>Requester</th>
+                                    <th>Mission ID</th>
+                                    <th>Service Type</th>
+                                    <th>Patient / Requester</th>
                                     <th>Assigned Helper</th>
-                                    <th>Destination Address</th>
-                                    <th>Status</th>
+                                    <th>Hospital Destination</th>
+                                    <th>Current Lifecycle Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var job in activeJobs)
                                 {
                                     <tr>
-                                        <td>#@job.JobId</td>
-                                        <td class="fw-bold">@job.ServiceType</td>
-                                        <td>@job.RequesterName (@job.RequesterPhone)</td>
-                                        <td>@(job.HelperName ?? "Unassigned") (@(job.HelperPhone ?? "N/A"))</td>
-                                        <td class="small text-truncate" style="max-width: 250px;">@job.Address</td>
+                                        <td class="fw-bold">#@job.JobId</td>
                                         <td>
-                                            <span class="badge bg-primary">@job.Status</span>
+                                            <span class="badge bg-light text-primary border">@job.ServiceType</span>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold">@job.RequesterName</div>
+                                            <small class="text-muted"><i class="bi bi-telephone me-1"></i>@job.RequesterPhone</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold text-dark">@(job.HelperName ?? "Unassigned")</div>
+                                            <small class="text-muted"><i class="bi bi-telephone me-1"></i>@(job.HelperPhone ?? "N/A")</small>
+                                        </td>
+                                        <td class="small" style="max-width: 250px;">
+                                            <i class="bi bi-geo-alt-fill text-danger me-1"></i> @job.Address
+                                        </td>
+                                        <td>
+                                            <span class="badge @GetStatusBadge(job.Status) px-3 py-2 rounded-pill">
+                                                @job.Status
+                                            </span>
                                         </td>
                                     </tr>
                                 }
@@ -256,7 +370,6 @@
 
     private async Task InitAdminMap()
     {
-        // Center around Delhi (or first active job coordinates)
         double centerLat = activeJobs.Any() ? (double)activeJobs.First().JobLat : 28.6139;
         double centerLng = activeJobs.Any() ? (double)activeJobs.First().JobLng : 77.2090;
 
@@ -264,12 +377,10 @@
 
         foreach (var job in activeJobs)
         {
-            // Destination Pin
             await JS.InvokeVoidAsync("cyhMaps.addOrUpdateMarker", "adminLiveMap", $"job_{job.JobId}", 
                 (double)job.JobLat, (double)job.JobLng, 
                 $"<b>Job #{job.JobId}: {job.ServiceType}</b><br/>{job.Address}<br/>Status: {job.Status}", false);
 
-            // Helper Pin (if on-duty / moving)
             if (job.HelperLastLat.HasValue && job.HelperLastLng.HasValue)
             {
                 await JS.InvokeVoidAsync("cyhMaps.addOrUpdateMarker", "adminLiveMap", $"helper_{job.HelperId}", 
@@ -277,6 +388,11 @@
                     $"<b>Helper: {job.HelperName}</b><br/>Phone: {job.HelperPhone}", true);
             }
         }
+    }
+
+    private async Task FocusJob(AdminActiveJobDto job)
+    {
+        await JS.InvokeVoidAsync("cyhMaps.centerMap", "adminLiveMap", (double)job.JobLat, (double)job.JobLng, 16);
     }
 
     private async Task ProcessKyc(int helperId, string status)
@@ -288,4 +404,14 @@
         }
         catch { }
     }
+
+    private string GetStatusBadge(string status) => status switch
+    {
+        "Accepted" => "bg-info text-dark",
+        "OnTheWay" => "bg-primary text-white",
+        "Arrived" => "bg-success text-white",
+        "InProgress" => "bg-info text-white",
+        "Completed" => "bg-success text-white",
+        _ => "bg-secondary text-white"
+    };
 }
