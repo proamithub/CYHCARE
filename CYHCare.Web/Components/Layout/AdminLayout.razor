@@ -9,16 +9,16 @@
         <div class="container-fluid">
             <!-- Brand & Executive Title -->
             <div class="d-flex align-items-center">
-                <a class="navbar-brand d-flex align-items-center me-3 text-white" href="">
+                <a class="navbar-brand d-flex align-items-center me-2 me-sm-3 text-white" href="">
                     <i class="bi bi-shield-shaded text-warning fs-3 me-2"></i>
                     <span class="fw-bold fs-4">CYH <span class="text-primary">Care</span></span>
                 </a>
-                <span class="badge bg-warning text-dark fw-bold px-2 py-1 text-uppercase rounded-pill shadow-sm" style="font-size: 0.7rem; letter-spacing: 0.05em;">
-                    <i class="bi bi-shield-lock-fill me-1"></i> Executive Mission Control
+                <span class="badge bg-warning text-dark fw-bold px-2 py-1 text-uppercase rounded-pill shadow-sm" style="font-size: 0.65rem; letter-spacing: 0.05em;">
+                    <i class="bi bi-shield-lock-fill me-1"></i> Mission Control
                 </span>
             </div>
 
-            <!-- Command Center Nav Links -->
+            <!-- Command Center Nav Links for Desktop -->
             <div class="d-none d-md-flex align-items-center gap-3 ms-4">
                 <NavLink class="nav-link text-white fw-medium px-2 py-1 rounded" href="admin" Match="NavLinkMatch.All">
                     <i class="bi bi-radar me-1 text-primary"></i> Operations Map
@@ -40,9 +40,9 @@
                 @if (Session.IsAuthenticated)
                 {
                     <div class="dropdown">
-                        <button class="btn btn-dark border border-secondary btn-sm rounded-pill px-3 fw-medium d-flex align-items-center gap-2 shadow-sm dropdown-toggle text-white" type="button" data-bs-toggle="dropdown">
+                        <button class="btn btn-dark border border-secondary btn-sm rounded-pill px-3 fw-medium d-flex align-items-center gap-2 shadow-sm dropdown-toggle text-white" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-shield-fill-check text-warning"></i>
-                            <span>@Session.FullName</span>
+                            <span class="d-none d-sm-inline">@Session.FullName</span>
                             <span class="badge bg-danger small">Super Admin</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
@@ -74,10 +74,10 @@
     </header>
 
     <!-- Operational Telemetry Bar -->
-    <div class="bg-black text-white-50 py-1 px-3 px-lg-4 text-center small border-bottom border-dark d-flex justify-content-between align-items-center">
+    <div class="bg-black text-white-50 py-1 px-3 px-lg-4 text-center small border-bottom border-dark d-flex justify-content-between align-items-center flex-wrap gap-1">
         <span>
             <span class="pulse-live me-1"></span>
-            <strong class="text-success">SYSTEM ONLINE</strong> — Live GPS tracking, Dapper 100% Stored Procedures, SignalR WebSockets Connected
+            <strong class="text-success">SYSTEM ONLINE</strong> — 100% Stored Procedures &amp; SignalR WebSockets
         </span>
         <span class="d-none d-md-inline text-muted">
             <i class="bi bi-clock me-1"></i> Telemetry Sync: UTC Active
@@ -85,22 +85,49 @@
     </div>
 
     <!-- Main Content Area -->
-    <main class="flex-grow-1 p-3 p-lg-4">
+    <main class="flex-grow-1 p-2 p-sm-3 p-lg-4" role="main">
         <div class="container-fluid max-w-7xl">
             @Body
         </div>
     </main>
 
     <!-- Executive Footer -->
-    <footer class="bg-dark text-white-50 border-top border-dark-subtle py-3 px-4 text-center small mt-auto">
+    <footer class="bg-dark text-white-50 border-top border-dark-subtle py-3 px-4 text-center small mt-auto" role="contentinfo">
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center">
-            <span>&copy; 2026 CYH Care Platform — Executive Operations & Compliance</span>
+            <span>&copy; 2026 CYH Care Platform — Executive Operations &amp; Compliance</span>
             <div class="mt-1 mt-sm-0">
                 <a href="" class="text-decoration-none text-white-50 me-3">Public Portal</a>
                 <span class="text-warning"><i class="bi bi-shield-check"></i> High Security Audit Logging</span>
             </div>
         </div>
     </footer>
+
+    <!-- Admin Mobile Bottom Quick-Access Bar -->
+    <nav class="mobile-bottom-nav" aria-label="Admin Mobile Navigation">
+        <NavLink href="" Match="NavLinkMatch.All">
+            <i class="bi bi-house-door"></i>
+            <span>Home</span>
+        </NavLink>
+        <NavLink href="admin" Match="NavLinkMatch.All">
+            <i class="bi bi-radar text-primary"></i>
+            <span>Radar</span>
+        </NavLink>
+        <a href="admin#kyc-queue">
+            <i class="bi bi-person-check-fill text-warning"></i>
+            <span>KYC Queue</span>
+        </a>
+        <a href="admin#active-missions">
+            <i class="bi bi-geo-alt-fill text-danger"></i>
+            <span>Missions</span>
+        </a>
+        @if (Session.IsAuthenticated)
+        {
+            <button type="button" @onclick="Logout" class="text-danger">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Sign Out</span>
+            </button>
+        }
+    </nav>
 </div>
 
 @code {

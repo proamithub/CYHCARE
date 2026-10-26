@@ -6,10 +6,10 @@
 <div class="public-layout d-flex flex-column min-vh-100">
     <!-- Public Navbar -->
     <header class="public-navbar sticky-top bg-white border-bottom shadow-sm">
-        <nav class="navbar navbar-expand-lg navbar-light py-2 px-3 px-lg-5">
+        <nav class="navbar navbar-expand-lg navbar-light py-2 px-3 px-lg-5" aria-label="Main Navigation">
             <div class="container-fluid">
                 <!-- Brand Logo & Emotional Tagline -->
-                <a class="navbar-brand d-flex align-items-center text-decoration-none" href="">
+                <a class="navbar-brand d-flex align-items-center text-decoration-none" href="" title="CYH Care Homepage">
                     <div class="brand-icon-wrapper me-2 text-danger">
                         <i class="bi bi-heart-pulse-fill fs-2 pulse-heart"></i>
                     </div>
@@ -19,31 +19,31 @@
                     </div>
                 </a>
 
-                <!-- Mobile Toggle Button -->
-                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavMenu" aria-controls="publicNavMenu" aria-expanded="false" aria-label="Toggle navigation">
-                    <i class="bi bi-list fs-2 text-dark"></i>
+                <!-- Mobile Hamburger Toggle Button -->
+                <button class="navbar-toggler border-0 shadow-none p-2" type="button" @onclick="ToggleNavMenu" aria-controls="publicNavMenu" aria-expanded="@(!isNavCollapsed)" aria-label="Toggle navigation">
+                    <i class="bi @(isNavCollapsed ? "bi-list" : "bi-x-lg") fs-2 text-dark"></i>
                 </button>
 
                 <!-- Navigation Menu Links & Action Buttons -->
-                <div class="collapse navbar-collapse" id="publicNavMenu">
+                <div class="collapse navbar-collapse @(isNavCollapsed ? "" : "show")" id="publicNavMenu">
                     <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-medium">
                         <li class="nav-item px-2">
-                            <NavLink class="nav-link text-secondary" href="" Match="NavLinkMatch.All">
+                            <NavLink class="nav-link text-secondary" href="" Match="NavLinkMatch.All" @onclick="CloseNavMenu">
                                 <i class="bi bi-house-door me-1 text-primary"></i> Home
                             </NavLink>
                         </li>
                         <li class="nav-item px-2">
-                            <NavLink class="nav-link text-secondary" href="how-it-works">
+                            <NavLink class="nav-link text-secondary" href="how-it-works" @onclick="CloseNavMenu">
                                 <i class="bi bi-diagram-3 me-1 text-primary"></i> How It Works
                             </NavLink>
                         </li>
                         <li class="nav-item px-2">
-                            <a class="nav-link text-secondary" href="#features">
+                            <a class="nav-link text-secondary" href="#features" @onclick="CloseNavMenu">
                                 <i class="bi bi-shield-check me-1 text-success"></i> 100% Verified Helpers
                             </a>
                         </li>
                         <li class="nav-item px-2">
-                            <a class="nav-link text-secondary" href="#tracking">
+                            <a class="nav-link text-secondary" href="#tracking" @onclick="CloseNavMenu">
                                 <i class="bi bi-geo-alt-fill me-1 text-danger"></i> Live GPS Duty
                             </a>
                         </li>
@@ -56,26 +56,26 @@
                             <!-- Role Portal Shortcut Button -->
                             @if (Session.Role == "Admin")
                             {
-                                <a href="admin" class="btn btn-dark btn-sm rounded-pill px-3 shadow-sm">
+                                <a href="admin" class="btn btn-dark btn-sm rounded-pill px-3 shadow-sm" @onclick="CloseNavMenu">
                                     <i class="bi bi-shield-lock-fill text-warning me-1"></i> Admin Command
                                 </a>
                             }
                             else if (Session.Role == "Helper")
                             {
-                                <a href="helper/dashboard" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">
+                                <a href="helper/dashboard" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm" @onclick="CloseNavMenu">
                                     <i class="bi bi-person-badge-fill me-1"></i> Companion Portal
                                 </a>
                             }
                             else
                             {
-                                <a href="user/dashboard" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">
+                                <a href="user/dashboard" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" @onclick="CloseNavMenu">
                                     <i class="bi bi-calendar2-plus me-1"></i> My Care Dashboard
                                 </a>
                             }
 
                             <!-- User info pill & Sign Out -->
                             <div class="dropdown">
-                                <button class="btn btn-light btn-sm rounded-pill border px-3 d-flex align-items-center gap-1 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <button class="btn btn-light btn-sm rounded-pill border px-3 d-flex align-items-center gap-1 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-person-circle text-primary"></i>
                                     <span class="fw-semibold">@Session.FullName</span>
                                 </button>
@@ -93,15 +93,15 @@
                         else
                         {
                             <!-- Public Action CTA Buttons -->
-                            <a href="register?role=Helper" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-medium">
+                            <a href="register?role=Helper" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-medium" @onclick="CloseNavMenu">
                                 <i class="bi bi-person-heart me-1 text-danger"></i> Become a Helper
                             </a>
 
-                            <a href="user/dashboard" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold shadow-sm">
+                            <a href="user/dashboard" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold shadow-sm" @onclick="CloseNavMenu">
                                 <i class="bi bi-plus-circle me-1"></i> Post Care Request
                             </a>
 
-                            <a href="login" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-medium">
+                            <a href="login" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-medium" @onclick="CloseNavMenu">
                                 <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
                             </a>
                         }
@@ -112,25 +112,25 @@
     </header>
 
     <!-- Main Public Content Body -->
-    <main class="flex-grow-1">
+    <main class="flex-grow-1" id="main-content" role="main">
         @Body
     </main>
 
     <!-- Compassionate Public Footer -->
-    <footer class="bg-dark text-white pt-5 pb-4 mt-5 border-top border-secondary">
+    <footer class="bg-dark text-white pt-5 pb-4 mt-5 border-top border-secondary" role="contentinfo">
         <div class="container">
             <div class="row g-4 mb-4">
                 <div class="col-lg-4">
                     <div class="d-flex align-items-center mb-3">
                         <i class="bi bi-heart-pulse-fill text-danger fs-2 me-2"></i>
-                        <h4 class="fw-bold mb-0 text-white">CYH <span class="text-primary">Care</span></h4>
+                        <span class="fs-4 fw-bold mb-0 text-white">CYH <span class="text-primary">Care</span></span>
                     </div>
                     <p class="text-light-50 small mb-3">
                         "People Help People" — A compassionate hospital companion and emergency assistance platform. No patient or elderly parent should ever have to stand alone in hospital corridors.
                     </p>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-wrap gap-2">
                         <span class="badge bg-secondary-subtle text-light border border-secondary px-2 py-1 small">
-                            <i class="bi bi-shield-check text-success me-1"></i> 100% Aadhaar / Police Verified
+                            <i class="bi bi-shield-check text-success me-1"></i> 100% Aadhaar &amp; Police Verified
                         </span>
                         <span class="badge bg-secondary-subtle text-light border border-secondary px-2 py-1 small">
                             <i class="bi bi-broadcast text-info me-1"></i> 100m Geofenced GPS
@@ -149,9 +149,9 @@
                 </div>
 
                 <div class="col-6 col-lg-3">
-                    <h6 class="text-uppercase fw-bold text-light mb-3 small">Portals & Areas</h6>
+                    <h6 class="text-uppercase fw-bold text-light mb-3 small">Portals &amp; Areas</h6>
                     <ul class="list-unstyled small mb-0">
-                        <li class="mb-2"><a href="user/dashboard" class="text-decoration-none text-light-50 hover-white"><i class="bi bi-person me-1"></i> Patient & Family Portal</a></li>
+                        <li class="mb-2"><a href="user/dashboard" class="text-decoration-none text-light-50 hover-white"><i class="bi bi-person me-1"></i> Patient &amp; Family Portal</a></li>
                         <li class="mb-2"><a href="helper/dashboard" class="text-decoration-none text-light-50 hover-white"><i class="bi bi-person-badge me-1"></i> Helper / Companion Portal</a></li>
                         <li class="mb-2"><a href="admin" class="text-decoration-none text-light-50 hover-white"><i class="bi bi-shield-lock me-1"></i> Executive Admin Control</a></li>
                         <li class="mb-2"><a href="login" class="text-decoration-none text-light-50 hover-white"><i class="bi bi-box-arrow-in-right me-1"></i> Sign In / Portal Access</a></li>
@@ -176,7 +176,7 @@
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-light-50">
                 <div>&copy; 2026 CYH Care ("People Help People"). All rights reserved.</div>
                 <div class="mt-2 mt-md-0">
-                    <span class="me-3">Security & Trust First</span>
+                    <span class="me-3">Security &amp; Trust First</span>
                     <span class="me-3">&bull;</span>
                     <span class="me-3">GPS Privacy Protected</span>
                     <span class="me-3">&bull;</span>
@@ -185,9 +185,55 @@
             </div>
         </div>
     </footer>
+
+    <!-- Mobile-First Sticky Bottom Quick-Access Bar (Shows exclusively on Mobile screens <= 768px) -->
+    <nav class="mobile-bottom-nav" aria-label="Mobile Bottom Navigation">
+        <NavLink href="" Match="NavLinkMatch.All">
+            <i class="bi bi-house-door-fill"></i>
+            <span>Home</span>
+        </NavLink>
+        <NavLink href="how-it-works">
+            <i class="bi bi-diagram-3-fill"></i>
+            <span>Guide</span>
+        </NavLink>
+        <NavLink href="user/dashboard" class="text-danger fw-bold">
+            <i class="bi bi-heart-pulse-fill text-danger fs-5 pulse-heart"></i>
+            <span>Book Care</span>
+        </NavLink>
+        <NavLink href="register?role=Helper">
+            <i class="bi bi-person-badge"></i>
+            <span>Be Helper</span>
+        </NavLink>
+        @if (Session.IsAuthenticated)
+        {
+            <NavLink href="@(Session.Role == "Admin" ? "admin" : (Session.Role == "Helper" ? "helper/dashboard" : "user/dashboard"))">
+                <i class="bi bi-person-circle text-primary"></i>
+                <span>Portal</span>
+            </NavLink>
+        }
+        else
+        {
+            <NavLink href="login">
+                <i class="bi bi-box-arrow-in-right"></i>
+                <span>Sign In</span>
+            </NavLink>
+        }
+    </nav>
 </div>
 
 @code {
+    private bool isNavCollapsed = true;
+
+    private void ToggleNavMenu()
+    {
+        isNavCollapsed = !isNavCollapsed;
+    }
+
+    private void CloseNavMenu()
+    {
+        isNavCollapsed = true;
+    }
+
     protected override void OnInitialized()
     {
         Session.OnAuthStateChanged += StateHasChanged;

@@ -9,16 +9,16 @@
         <div class="container-fluid">
             <!-- Brand & Role Identifier -->
             <div class="d-flex align-items-center">
-                <a class="navbar-brand d-flex align-items-center me-3 text-white" href="">
+                <a class="navbar-brand d-flex align-items-center me-2 me-sm-3 text-white" href="">
                     <i class="bi bi-heart-pulse-fill text-danger fs-3 me-2 pulse-heart"></i>
                     <span class="fw-bold fs-4">CYH <span class="text-info">Care</span></span>
                 </a>
-                <span class="badge bg-teal-subtle text-info fw-bold px-2 py-1 text-uppercase rounded-pill border border-info" style="font-size: 0.7rem;">
-                    <i class="bi bi-person-badge-fill me-1"></i> Companion Field Portal
+                <span class="badge bg-teal-subtle text-info fw-bold px-2 py-1 text-uppercase rounded-pill border border-info" style="font-size: 0.65rem;">
+                    <i class="bi bi-person-badge-fill me-1"></i> Field Companion
                 </span>
             </div>
 
-            <!-- Portal Navigation Links -->
+            <!-- Portal Navigation Links for Desktop -->
             <div class="d-none d-md-flex align-items-center gap-3 ms-4">
                 <NavLink class="nav-link text-white fw-medium px-2 py-1 rounded" href="helper/dashboard" Match="NavLinkMatch.All">
                     <i class="bi bi-broadcast me-1 text-success"></i> Duty Station
@@ -34,15 +34,15 @@
             <!-- Helper Status & Profile -->
             <div class="d-flex align-items-center gap-2 ms-auto">
                 <a href="" class="btn btn-sm btn-outline-light rounded-pill px-3 d-none d-sm-inline-block">
-                    <i class="bi bi-house me-1"></i> Home
+                    <i class="bi bi-house me-1"></i> Public
                 </a>
 
                 @if (Session.IsAuthenticated)
                 {
                     <div class="dropdown">
-                        <button class="btn btn-outline-info btn-sm rounded-pill px-3 fw-medium d-flex align-items-center gap-2 shadow-sm dropdown-toggle text-white" type="button" data-bs-toggle="dropdown">
+                        <button class="btn btn-outline-info btn-sm rounded-pill px-3 fw-medium d-flex align-items-center gap-2 shadow-sm dropdown-toggle text-white" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="pulse-live"></span>
-                            <span class="fw-semibold">@Session.FullName</span>
+                            <span class="fw-semibold d-none d-sm-inline">@Session.FullName</span>
                             @if (Session.IsVerified)
                             {
                                 <i class="bi bi-patch-check-fill text-info" title="KYC Verified"></i>
@@ -79,20 +79,20 @@
     </header>
 
     <!-- Sub-bar: Companion Safety & GPS Notice -->
-    <div class="bg-dark text-white-50 border-bottom border-secondary py-1 px-3 px-lg-4 text-center small d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-shield-lock-fill text-warning me-1"></i> Privacy Protected: GPS transmits only while actively On-The-Way or In-Progress</span>
-        <span class="d-none d-md-inline"><i class="bi bi-currency-rupee me-1"></i> Instant calculation of working hours upon completion</span>
+    <div class="bg-dark text-white-50 border-bottom border-secondary py-1 px-3 px-lg-4 text-center small d-flex justify-content-between align-items-center flex-wrap gap-1">
+        <span><i class="bi bi-shield-lock-fill text-warning me-1"></i> Privacy Protected: GPS streams only while On-The-Way or In-Progress</span>
+        <span><i class="bi bi-currency-rupee me-1"></i> Automated minute-exact payout calculation</span>
     </div>
 
     <!-- Main Content Area -->
-    <main class="flex-grow-1 p-3 p-lg-4">
+    <main class="flex-grow-1 p-2 p-sm-3 p-lg-4" role="main">
         <div class="container-fluid max-w-7xl">
             @Body
         </div>
     </main>
 
     <!-- Companion Footer -->
-    <footer class="bg-dark text-white-50 border-top border-secondary py-3 px-4 text-center small mt-auto">
+    <footer class="bg-dark text-white-50 border-top border-secondary py-3 px-4 text-center small mt-auto" role="contentinfo">
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center">
             <span>&copy; 2026 CYH Care — Companion / Helper Field Station</span>
             <div class="mt-1 mt-sm-0">
@@ -101,6 +101,33 @@
             </div>
         </div>
     </footer>
+
+    <!-- Helper Mobile Bottom Quick-Access Bar -->
+    <nav class="mobile-bottom-nav" aria-label="Helper Mobile Navigation">
+        <NavLink href="" Match="NavLinkMatch.All">
+            <i class="bi bi-house-door"></i>
+            <span>Home</span>
+        </NavLink>
+        <NavLink href="helper/dashboard" Match="NavLinkMatch.All">
+            <i class="bi bi-broadcast text-success"></i>
+            <span>Duty Console</span>
+        </NavLink>
+        <a href="helper/dashboard#nearby-jobs">
+            <i class="bi bi-radar text-warning"></i>
+            <span>Jobs</span>
+        </a>
+        <a href="helper/dashboard#mission-actions">
+            <i class="bi bi-geo-alt-fill text-info"></i>
+            <span>Mission</span>
+        </a>
+        @if (Session.IsAuthenticated)
+        {
+            <button type="button" @onclick="Logout" class="text-danger">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Sign Out</span>
+            </button>
+        }
+    </nav>
 </div>
 
 @code {

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#0369a1" />
+    </linearGradient>
+    <radialGradient id="glow" cx="80%" cy="20%" r="50%">
+      <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <rect width="1200" height="630" fill="url(#glow)" />
+  
+  <!-- Logo Icon -->
+  <g transform="translate(100, 120)">
+    <circle cx="50" cy="50" r="48" fill="#f43f5e" opacity="0.2" />
+    <path d="M50 82 S20 52 20 34 A18 18 0 0 1 50 25 A18 18 0 0 1 80 34 C80 52 50 82 50 82 Z" fill="#f43f5e" />
+  </g>
+  
+  <!-- Brand Text -->
+  <text x="220" y="185" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="64" font-weight="900" fill="#ffffff">CYH <tspan fill="#38bdf8">Care</tspan></text>
+  <text x="220" y="225" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="700" fill="#f43f5e" letter-spacing="4">PEOPLE HELP PEOPLE</text>
+  
+  <!-- Main Emotional Slogan -->
+  <text x="100" y="340" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="800" fill="#ffffff">No One Should Face the Hospital Alone.</text>
+  
+  <text x="100" y="410" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="26" font-weight="400" fill="#cbd5e1">
+    Verified local hospital companions for elderly parents and vulnerable patients.
+  </text>
+  <text x="100" y="450" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="26" font-weight="400" fill="#cbd5e1">
+    Real-time GPS geofencing &bull; Aadhaar &amp; Police Background Verified &bull; Transparent Hourly Billing
+  </text>
+  
+  <!-- Badges at bottom -->
+  <rect x="100" y="520" width="280" height="50" rx="25" fill="#ffffff" fill-opacity="0.15" />
+  <text x="130" y="552" font-family="sans-serif" font-size="20" font-weight="600" fill="#22c55e">&#x2713; 100% Verified Helpers</text>
+  
+  <rect x="400" y="520" width="260" height="50" rx="25" fill="#ffffff" fill-opacity="0.15" />
+  <text x="430" y="552" font-family="sans-serif" font-size="20" font-weight="600" fill="#38bdf8">&#x25C9; 100m Live Geofence</text>
+  
+  <rect x="680" y="520" width="280" height="50" rx="25" fill="#ffffff" fill-opacity="0.15" />
+  <text x="710" y="552" font-family="sans-serif" font-size="20" font-weight="600" fill="#fbbf24">&#x2605; 4.9/5 Compassion Score</text>
+</svg>

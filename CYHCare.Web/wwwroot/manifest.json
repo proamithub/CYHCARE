@@ -1,0 +1,25 @@
+{
+  "name": "CYH Care — Hospital Companion & Patient Assistance",
+  "short_name": "CYH Care",
+  "description": "On-demand hospital companion, elderly care assistance, and live GPS-tracked patient navigation.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0284c7",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["medical", "health", "lifestyle", "social"]
+}

@@ -1,0 +1,15 @@
+# CYH Care - Robots.txt
+# https://cyhcare.com
+User-agent: *
+Allow: /
+Allow: /how-it-works
+Allow: /login
+Allow: /register
+
+# Disallow authenticated private dashboard crawlers for privacy and security
+Disallow: /user/
+Disallow: /helper/
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://cyhcare.com/sitemap.xml

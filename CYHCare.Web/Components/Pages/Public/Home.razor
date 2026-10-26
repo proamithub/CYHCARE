@@ -1,18 +1,26 @@
 @page "/"
 @layout Layout.PublicLayout
 
-<PageTitle>CYH Care — No One Should Face the Hospital Alone</PageTitle>
+<PageTitle>CYH Care — Hospital Companion &amp; Patient Assistance | People Help People</PageTitle>
+
+<!-- Schema.org FAQ & Service Rich Snippet for Google Search -->
+<HeadContent>
+    <meta name="description" content="Book verified hospital companions for elderly parents and patients. OPD assistance, wheelchair navigation, and live GPS tracking across India." />
+    <meta property="og:title" content="CYH Care — No One Should Face the Hospital Alone" />
+    <meta property="og:description" content="Find compassionate, verified companions for hospital visits, doctor consultations, and elderly care assistance." />
+    <link rel="canonical" href="https://cyhcare.com/" />
+</HeadContent>
 
 <!-- Emotional Hero Section -->
-<div class="hero-gradient text-white py-5 px-3 px-md-5 rounded-4 shadow-lg mb-5 mx-2 mx-md-4 mt-3">
-    <div class="container py-4">
-        <div class="row align-items-center g-5">
+<section class="hero-gradient text-white py-4 py-md-5 px-3 px-md-5 rounded-4 shadow-lg mb-5 mx-1 mx-md-4 mt-2 mt-md-3" aria-label="Hero Introduction">
+    <div class="container py-2 py-md-4">
+        <div class="row align-items-center g-4 g-lg-5">
             <div class="col-lg-7">
                 <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-10 border border-white border-opacity-25 small mb-3">
                     <span class="pulse-live"></span>
                     <span class="text-white-50">People Help People Community</span>
                 </div>
-                <h1 class="display-4 fw-extrabold mb-3 lh-sm">
+                <h1 class="display-4 fw-extrabold mb-3 lh-sm text-white">
                     No One Should Have to Walk the Hospital Corridors <span class="text-warning">Alone.</span>
                 </h1>
                 <p class="lead text-light opacity-90 mb-4 fs-5 fw-light">
@@ -21,26 +29,27 @@
                 </p>
 
                 <!-- Impact Stat Badges -->
-                <div class="d-flex flex-wrap gap-3 mb-4">
-                    <div class="stat-pill px-3 py-2 text-center">
+                <div class="d-flex flex-wrap gap-2 gap-md-3 mb-4">
+                    <div class="stat-pill px-3 py-2 text-center flex-grow-1 flex-md-grow-0">
                         <div class="fw-bold fs-5 text-white">12,500+</div>
                         <div class="small text-white-50">Hospital Visits Guided</div>
                     </div>
-                    <div class="stat-pill px-3 py-2 text-center">
+                    <div class="stat-pill px-3 py-2 text-center flex-grow-1 flex-md-grow-0">
                         <div class="fw-bold fs-5 text-white">100%</div>
-                        <div class="small text-white-50">Aadhaar & Police Verified</div>
+                        <div class="small text-white-50">Aadhaar &amp; Police Verified</div>
                     </div>
-                    <div class="stat-pill px-3 py-2 text-center">
+                    <div class="stat-pill px-3 py-2 text-center flex-grow-1 flex-md-grow-0">
                         <div class="fw-bold fs-5 text-white"><i class="bi bi-star-fill text-warning"></i> 4.9/5</div>
                         <div class="small text-white-50">Compassion Score</div>
                     </div>
                 </div>
 
-                <div class="d-flex flex-wrap gap-3">
-                    <a href="user/dashboard" class="btn btn-warning btn-lg px-4 py-3 fw-bold text-dark shadow rounded-pill">
-                        <i class="bi bi-heart-fill text-danger me-2 pulse-heart"></i> Request a Companion Now
+                <!-- Call to Action Buttons (Stack on mobile, row on desktop) -->
+                <div class="d-flex flex-column flex-sm-row gap-3">
+                    <a href="user/dashboard" class="btn btn-warning btn-lg px-4 py-3 fw-bold text-dark shadow rounded-pill text-center">
+                        <i class="bi bi-heart-fill text-danger me-2 pulse-heart"></i> Request a Companion
                     </a>
-                    <a href="register?role=Helper" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill">
+                    <a href="register?role=Helper" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill text-center">
                         <i class="bi bi-person-heart me-2"></i> Join as Care Helper
                     </a>
                 </div>
@@ -52,7 +61,7 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center gap-3 mb-3">
                             <div class="bg-danger bg-opacity-10 p-3 rounded-circle text-danger fs-3">
-                                <i class="bi bi-hospital"></i>
+                                <i class="bi bi-hospital" aria-hidden="true"></i>
                             </div>
                             <div>
                                 <h6 class="fw-bold mb-0">AIIMS Delhi • Live Companion Session</h6>
@@ -75,9 +84,9 @@
                             </div>
                         </div>
 
-                        <div class="quote-highlight small my-3">
+                        <blockquote class="quote-highlight small my-3">
                             "Mera beta Bangalore mein hai. Rohit ne bilkul bete ki tarah wheelchair chalayi, parchi banwayi aur doctor ke samne haath pakad ke khada raha."
-                        </div>
+                        </blockquote>
 
                         <div class="d-flex align-items-center justify-content-between pt-2 border-top">
                             <span class="badge badge-soft-success py-2 px-3 rounded-pill">
@@ -90,13 +99,13 @@
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <!-- Why CYH Care Exists — The Emotional Why -->
-<div class="container py-5" id="features">
-    <div class="text-center mb-5 col-lg-8 mx-auto">
-        <span class="badge badge-soft-primary px-3 py-2 rounded-pill text-uppercase fw-bold mb-2">Our Heart & Mission</span>
-        <h2 class="display-6 fw-bold">Why We Built CYH Care</h2>
+<section class="container py-4 py-md-5" id="features" aria-labelledby="why-cyh-heading">
+    <div class="text-center mb-4 mb-md-5 col-lg-8 mx-auto">
+        <span class="badge badge-soft-primary px-3 py-2 rounded-pill text-uppercase fw-bold mb-2">Our Heart &amp; Mission</span>
+        <h2 id="why-cyh-heading" class="display-6 fw-bold">Why We Built CYH Care</h2>
         <p class="text-muted fs-6">
             Hospital visits can be daunting, confusing, and physically exhausting for seniors and vulnerable patients. 
             When family is constrained by distances or work commitments, CYH Care ensures respect, empathy, and dignity.
@@ -106,9 +115,9 @@
     <div class="row g-4">
         <!-- Story 1 -->
         <div class="col-md-4">
-            <div class="story-card p-4 h-100">
-                <div class="text-danger fs-1 mb-3"><i class="bi bi-people-fill"></i></div>
-                <h5 class="fw-bold mb-2">For Distant Families</h5>
+            <article class="story-card p-4 h-100">
+                <div class="text-danger fs-1 mb-3"><i class="bi bi-people-fill" aria-hidden="true"></i></div>
+                <h3 class="h5 fw-bold mb-2">For Distant Families</h3>
                 <p class="text-muted small mb-3">
                     Working in another state or abroad? You don't have to feel helpless when your parents have doctor checkups. 
                     Get real-time updates and peace of mind.
@@ -116,28 +125,28 @@
                 <div class="quote-highlight small">
                     "I was on a work call in Mumbai while helper Anjali was holding my mother's hand during her dialysis in Delhi."
                 </div>
-            </div>
+            </article>
         </div>
 
         <!-- Story 2 -->
         <div class="col-md-4">
-            <div class="story-card p-4 h-100">
-                <div class="text-primary fs-1 mb-3"><i class="bi bi-sign-turn-right-fill"></i></div>
-                <h5 class="fw-bold mb-2">Navigating Hospital Mazes</h5>
+            <article class="story-card p-4 h-100">
+                <div class="text-primary fs-1 mb-3"><i class="bi bi-sign-turn-right-fill" aria-hidden="true"></i></div>
+                <h3 class="h5 fw-bold mb-2">Navigating Hospital Mazes</h3>
                 <p class="text-muted small mb-3">
                     OPD registration, billing lines, pathology collection counters, elevator queues. Our helpers take care of the physical run-around so patients can rest.
                 </p>
                 <div class="quote-highlight small">
                     "Uncle sat peacefully on the bench while our helper cleared all registration tokens and gathered blood reports."
                 </div>
-            </div>
+            </article>
         </div>
 
         <!-- Story 3 -->
         <div class="col-md-4">
-            <div class="story-card p-4 h-100">
-                <div class="text-success fs-1 mb-3"><i class="bi bi-shield-lock-fill"></i></div>
-                <h5 class="fw-bold mb-2">Absolute Trust & Safety</h5>
+            <article class="story-card p-4 h-100">
+                <div class="text-success fs-1 mb-3"><i class="bi bi-shield-lock-fill" aria-hidden="true"></i></div>
+                <h3 class="h5 fw-bold mb-2">Absolute Trust &amp; Safety</h3>
                 <p class="text-muted small mb-3">
                     Every helper is verified through government KYC, police background scrutiny, and admin approval. 
                     Live GPS runs continuously until safely returned.
@@ -145,37 +154,37 @@
                 <div class="quote-highlight small">
                     "Zero compromise on patient dignity, gentleness, and physical safety. Tracked every single meter on the live map."
                 </div>
-            </div>
+            </article>
         </div>
     </div>
-</div>
+</section>
 
 <!-- Live GPS Duty & Geofencing Section -->
-<div class="container py-5 border-top" id="tracking">
-    <div class="row align-items-center g-5">
+<section class="container py-4 py-md-5 border-top" id="tracking" aria-labelledby="tracking-heading">
+    <div class="row align-items-center g-4 g-lg-5">
         <div class="col-lg-6">
             <span class="badge badge-soft-danger px-3 py-2 rounded-pill text-uppercase fw-bold mb-2">Real-Time Precision</span>
-            <h2 class="display-6 fw-bold mb-3">Smart Duty & 100m Arrival Geofence</h2>
+            <h2 id="tracking-heading" class="display-6 fw-bold mb-3">Smart Duty &amp; 100m Arrival Geofence</h2>
             <p class="text-muted mb-4">
                 We believe in full transparency. As soon as a helper accepts a request and clicks "On The Way", their live GPS updates on the family's interactive map every 10 seconds.
             </p>
             <ul class="list-unstyled">
                 <li class="d-flex align-items-start mb-3">
-                    <i class="bi bi-check-circle-fill text-success fs-5 me-3 mt-1"></i>
+                    <i class="bi bi-check-circle-fill text-success fs-5 me-3 mt-1" aria-hidden="true"></i>
                     <div>
                         <strong class="text-dark">Race-Safe Job Dispatch:</strong>
                         <p class="text-muted small mb-0">Nearby verified helpers within 10 km are alerted. First available helper accepts safely with SQL Server concurrency control.</p>
                     </div>
                 </li>
                 <li class="d-flex align-items-start mb-3">
-                    <i class="bi bi-check-circle-fill text-success fs-5 me-3 mt-1"></i>
+                    <i class="bi bi-check-circle-fill text-success fs-5 me-3 mt-1" aria-hidden="true"></i>
                     <div>
                         <strong class="text-dark">100m Automatic Proximity Detection:</strong>
                         <p class="text-muted small mb-0">System automatically detects when the helper reaches within 100 meters of the hospital or pickup location.</p>
                     </div>
                 </li>
                 <li class="d-flex align-items-start mb-3">
-                    <i class="bi bi-check-circle-fill text-success fs-5 me-3 mt-1"></i>
+                    <i class="bi bi-check-circle-fill text-success fs-5 me-3 mt-1" aria-hidden="true"></i>
                     <div>
                         <strong class="text-dark">Strict Privacy Mode:</strong>
                         <p class="text-muted small mb-0">GPS logs only transmit during duty hours. Location stops streaming instantly when the mission is marked Complete.</p>
@@ -186,7 +195,7 @@
         <div class="col-lg-6">
             <div class="p-4 bg-dark text-white rounded-4 shadow-lg border border-secondary">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-warning fw-bold"><i class="bi bi-radar me-2"></i> Live Radar Simulator</span>
+                    <span class="text-warning fw-bold"><i class="bi bi-radar me-2" aria-hidden="true"></i> Live Radar Simulator</span>
                     <span class="badge bg-success"><span class="pulse-live me-1"></span> Live</span>
                 </div>
                 <div class="p-3 bg-secondary bg-opacity-25 rounded-3 font-monospace small mb-3">
@@ -196,31 +205,98 @@
                     <div class="text-warning">&gt; Status Transition: Arrived &bull; InProgress</div>
                 </div>
                 <div class="text-center">
-                    <a href="user/dashboard" class="btn btn-primary rounded-pill px-4">
-                        <i class="bi bi-map-fill me-2"></i> Open Live User Map
+                    <a href="user/dashboard" class="btn btn-primary rounded-pill px-4 w-100 w-sm-auto">
+                        <i class="bi bi-map-fill me-2" aria-hidden="true"></i> Open Live User Map
                     </a>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- SEO Rich Snippet FAQ Section -->
+<section class="container py-4 py-md-5 border-top" id="faq" aria-labelledby="faq-heading">
+    <div class="text-center mb-4 mb-md-5 col-lg-8 mx-auto">
+        <span class="badge badge-soft-success px-3 py-2 rounded-pill text-uppercase fw-bold mb-2">Common Questions</span>
+        <h2 id="faq-heading" class="display-6 fw-bold">Frequently Asked Questions</h2>
+        <p class="text-muted fs-6">Everything you need to know about CYH Care hospital companions.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="accordion accordion-flush shadow-sm rounded-4 border overflow-hidden" id="faqAccordion">
+                <div class="accordion-item">
+                    <h3 class="accordion-header" id="faqHead1">
+                        <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCol1" aria-expanded="false" aria-controls="faqCol1">
+                            Who are the CYH Care hospital companions?
+                        </button>
+                    </h3>
+                    <div id="faqCol1" class="accordion-collapse collapse" aria-labelledby="faqHead1" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-secondary small">
+                            Our companions are compassionate, background-verified local individuals who assist patients and elderly seniors. Every companion undergoes Aadhaar identity verification, police verification checks, and admin clearance before receiving any hospital mission.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h3 class="accordion-header" id="faqHead2">
+                        <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCol2" aria-expanded="false" aria-controls="faqCol2">
+                            How does the 100m GPS arrival geofencing work?
+                        </button>
+                    </h3>
+                    <div id="faqCol2" class="accordion-collapse collapse" aria-labelledby="faqHead2" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-secondary small">
+                            When the helper taps "On The Way", their live GPS updates on the family's map via SignalR. When the helper arrives within 100 meters of the hospital or patient's coordinates, the system automatically detects proximity and enables the "Arrived" state.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h3 class="accordion-header" id="faqHead3">
+                        <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCol3" aria-expanded="false" aria-controls="faqCol3">
+                            How are helper payments calculated?
+                        </button>
+                    </h3>
+                    <div id="faqCol3" class="accordion-collapse collapse" aria-labelledby="faqHead3" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-secondary small">
+                            Fees are calculated based on transparent hourly rates (e.g. ₹100/hr) computed to the exact minute of active assistance (from "Arrived/InProgress" to "Completed"). No hidden charges or surge pricing.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h3 class="accordion-header" id="faqHead4">
+                        <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCol4" aria-expanded="false" aria-controls="faqCol4">
+                            Is my location and personal information private?
+                        </button>
+                    </h3>
+                    <div id="faqCol4" class="accordion-collapse collapse" aria-labelledby="faqHead4" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-secondary small">
+                            Yes. Helper GPS transmits strictly while on duty for an accepted job. As soon as the mission completes, GPS logging stops immediately. Furthermore, GPS breadcrumbs older than 30 days are automatically purged from the system.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Transparent Hourly Pay Banner -->
-<div class="container my-5">
+<section class="container my-4 my-md-5" aria-label="Join Community">
     <div class="p-4 p-md-5 rounded-4 bg-white border shadow-sm">
         <div class="row align-items-center g-4">
             <div class="col-lg-8">
-                <h3 class="fw-bold mb-2">Honest, Transparent & Compassionate Pay</h3>
+                <h3 class="fw-bold mb-2">Honest, Transparent &amp; Compassionate Pay</h3>
                 <p class="text-muted mb-0">
                     Helpers earn fair hourly compensation (₹100/hr standard rate) calculated automatically down to the exact minute of service, 
                     creating dignified community livelihoods while helping those in need.
                 </p>
             </div>
             <div class="col-lg-4 text-lg-end">
-                <a href="register?role=Helper" class="btn btn-primary btn-lg px-4 shadow-sm rounded-pill">
-                    <i class="bi bi-heart-pulse-fill me-2"></i> Join Our Community
+                <a href="register?role=Helper" class="btn btn-primary btn-lg px-4 shadow-sm rounded-pill w-100 w-lg-auto">
+                    <i class="bi bi-heart-pulse-fill me-2" aria-hidden="true"></i> Join Our Community
                 </a>
             </div>
         </div>
     </div>
-</div>
+</section>
