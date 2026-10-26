@@ -1,0 +1,206 @@
+@inherits LayoutComponentBase
+@inject UserSessionService Session
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<div class="public-layout d-flex flex-column min-vh-100">
+    <!-- Public Navbar -->
+    <header class="public-navbar sticky-top bg-white border-bottom shadow-sm">
+        <nav class="navbar navbar-expand-lg navbar-light py-2 px-3 px-lg-5">
+            <div class="container-fluid">
+                <!-- Brand Logo & Emotional Tagline -->
+                <a class="navbar-brand d-flex align-items-center text-decoration-none" href="">
+                    <div class="brand-icon-wrapper me-2 text-danger">
+                        <i class="bi bi-heart-pulse-fill fs-2 pulse-heart"></i>
+                    </div>
+                    <div>
+                        <div class="brand-title fw-bold text-dark lh-1 fs-4">CYH <span class="text-primary">Care</span></div>
+                        <span class="badge bg-danger-subtle text-danger p-0 fw-semibold text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.08em;">People Help People</span>
+                    </div>
+                </a>
+
+                <!-- Mobile Toggle Button -->
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavMenu" aria-controls="publicNavMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="bi bi-list fs-2 text-dark"></i>
+                </button>
+
+                <!-- Navigation Menu Links & Action Buttons -->
+                <div class="collapse navbar-collapse" id="publicNavMenu">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-medium">
+                        <li class="nav-item px-2">
+                            <NavLink class="nav-link text-secondary" href="" Match="NavLinkMatch.All">
+                                <i class="bi bi-house-door me-1 text-primary"></i> Home
+                            </NavLink>
+                        </li>
+                        <li class="nav-item px-2">
+                            <NavLink class="nav-link text-secondary" href="how-it-works">
+                                <i class="bi bi-diagram-3 me-1 text-primary"></i> How It Works
+                            </NavLink>
+                        </li>
+                        <li class="nav-item px-2">
+                            <a class="nav-link text-secondary" href="#features">
+                                <i class="bi bi-shield-check me-1 text-success"></i> 100% Verified Helpers
+                            </a>
+                        </li>
+                        <li class="nav-item px-2">
+                            <a class="nav-link text-secondary" href="#tracking">
+                                <i class="bi bi-geo-alt-fill me-1 text-danger"></i> Live GPS Duty
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Action Menu Buttons -->
+                    <div class="d-flex align-items-center gap-2 flex-wrap mt-3 mt-lg-0">
+                        @if (Session.IsAuthenticated)
+                        {
+                            <!-- Role Portal Shortcut Button -->
+                            @if (Session.Role == "Admin")
+                            {
+                                <a href="admin" class="btn btn-dark btn-sm rounded-pill px-3 shadow-sm">
+                                    <i class="bi bi-shield-lock-fill text-warning me-1"></i> Admin Command
+                                </a>
+                            }
+                            else if (Session.Role == "Helper")
+                            {
+                                <a href="helper/dashboard" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">
+                                    <i class="bi bi-person-badge-fill me-1"></i> Companion Portal
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="user/dashboard" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">
+                                    <i class="bi bi-calendar2-plus me-1"></i> My Care Dashboard
+                                </a>
+                            }
+
+                            <!-- User info pill & Sign Out -->
+                            <div class="dropdown">
+                                <button class="btn btn-light btn-sm rounded-pill border px-3 d-flex align-items-center gap-1 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle text-primary"></i>
+                                    <span class="fw-semibold">@Session.FullName</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                                    <li><h6 class="dropdown-header">Signed in as <strong>@Session.Role</strong></h6></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <button class="dropdown-item text-danger" @onclick="Logout">
+                                            <i class="bi bi-box-arrow-right me-2"></i> Sign Out
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Public Action CTA Buttons -->
+                            <a href="register?role=Helper" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-medium">
+                                <i class="bi bi-person-heart me-1 text-danger"></i> Become a Helper
+                            </a>
+
+                            <a href="user/dashboard" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold shadow-sm">
+                                <i class="bi bi-plus-circle me-1"></i> Post Care Request
+                            </a>
+
+                            <a href="login" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-medium">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Public Content Body -->
+    <main class="flex-grow-1">
+        @Body
+    </main>
+
+    <!-- Compassionate Public Footer -->
+    <footer class="bg-dark text-white pt-5 pb-4 mt-5 border-top border-secondary">
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <div class="col-lg-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-heart-pulse-fill text-danger fs-2 me-2"></i>
+                        <h4 class="fw-bold mb-0 text-white">CYH <span class="text-primary">Care</span></h4>
+                    </div>
+                    <p class="text-light-50 small mb-3">
+                        "People Help People" — A compassionate hospital companion and emergency assistance platform. No patient or elderly parent should ever have to stand alone in hospital corridors.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-secondary-subtle text-light border border-secondary px-2 py-1 small">
+                            <i class="bi bi-shield-check text-success me-1"></i> 100% Aadhaar / Police Verified
+                        </span>
+                        <span class="badge bg-secondary-subtle text-light border border-secondary px-2 py-1 small">
+                            <i class="bi bi-broadcast text-info me-1"></i> 100m Geofenced GPS
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <h6 class="text-uppercase fw-bold text-light mb-3 small">Quick Links</h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li class="mb-2"><a href="" class="text-decoration-none text-light-50 hover-white">Home</a></li>
+                        <li class="mb-2"><a href="how-it-works" class="text-decoration-none text-light-50 hover-white">How It Works</a></li>
+                        <li class="mb-2"><a href="user/dashboard" class="text-decoration-none text-light-50 hover-white">Post Hospital Request</a></li>
+                        <li class="mb-2"><a href="register?role=Helper" class="text-decoration-none text-light-50 hover-white">Become a Helper</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <h6 class="text-uppercase fw-bold text-light mb-3 small">Portals & Areas</h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li class="mb-2"><a href="user/dashboard" class="text-decoration-none text-light-50 hover-white"><i class="bi bi-person me-1"></i> Patient & Family Portal</a></li>
+                        <li class="mb-2"><a href="helper/dashboard" class="text-decoration-none text-light-50 hover-white"><i class="bi bi-person-badge me-1"></i> Helper / Companion Portal</a></li>
+                        <li class="mb-2"><a href="admin" class="text-decoration-none text-light-50 hover-white"><i class="bi bi-shield-lock me-1"></i> Executive Admin Control</a></li>
+                        <li class="mb-2"><a href="login" class="text-decoration-none text-light-50 hover-white"><i class="bi bi-box-arrow-in-right me-1"></i> Sign In / Portal Access</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3">
+                    <h6 class="text-uppercase fw-bold text-light mb-3 small">Emergency Assistance</h6>
+                    <div class="p-3 rounded-3 bg-secondary bg-opacity-25 border border-secondary mb-3">
+                        <div class="d-flex align-items-center text-warning mb-1">
+                            <i class="bi bi-telephone-inbound-fill me-2 fs-5"></i>
+                            <span class="fw-bold">24x7 Support Helpline</span>
+                        </div>
+                        <div class="fs-5 fw-bold text-white">1800-CYH-CARE</div>
+                        <div class="text-muted small mt-1">support@cyhcare.com</div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-secondary my-4" />
+
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-light-50">
+                <div>&copy; 2026 CYH Care ("People Help People"). All rights reserved.</div>
+                <div class="mt-2 mt-md-0">
+                    <span class="me-3">Security & Trust First</span>
+                    <span class="me-3">&bull;</span>
+                    <span class="me-3">GPS Privacy Protected</span>
+                    <span class="me-3">&bull;</span>
+                    <span>Direct Helper Payouts</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Session.OnAuthStateChanged += StateHasChanged;
+    }
+
+    private void Logout()
+    {
+        Session.ClearSession();
+        Navigation.NavigateTo("/", forceLoad: false);
+    }
+
+    public void Dispose()
+    {
+        Session.OnAuthStateChanged -= StateHasChanged;
+    }
+}

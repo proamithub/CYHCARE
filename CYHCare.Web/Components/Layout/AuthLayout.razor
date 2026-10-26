@@ -1,0 +1,35 @@
+@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+<div class="auth-layout min-vh-100 d-flex flex-column justify-content-between" style="background: radial-gradient(circle at 10% 20%, rgba(2, 132, 199, 0.08) 0%, rgba(248, 250, 252, 1) 90%);">
+    <!-- Clean Minimal Auth Header -->
+    <header class="py-3 px-4 border-bottom bg-white bg-opacity-75 backdrop-blur">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="" class="d-flex align-items-center text-decoration-none">
+                <i class="bi bi-heart-pulse-fill text-danger fs-3 me-2 pulse-heart"></i>
+                <span class="fs-4 fw-bold text-dark lh-1">CYH <span class="text-primary">Care</span></span>
+            </a>
+
+            <a href="" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                <i class="bi bi-arrow-left me-1"></i> Back to Home
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Auth Form Body -->
+    <main class="flex-grow-1 d-flex align-items-center py-5">
+        <div class="container">
+            @Body
+        </div>
+    </main>
+
+    <!-- Auth Footer with Trust Seals -->
+    <footer class="py-3 border-top bg-white bg-opacity-50 text-center small text-muted">
+        <div class="container d-flex flex-wrap justify-content-center align-items-center gap-4">
+            <span><i class="bi bi-shield-lock-fill text-success me-1"></i> 256-bit SSL Secure Auth</span>
+            <span><i class="bi bi-patch-check-fill text-primary me-1"></i> Verified Hospital Companions</span>
+            <span><i class="bi bi-geo-alt-fill text-danger me-1"></i> Real-Time GPS Geofencing</span>
+            <span>&copy; 2026 CYH Care</span>
+        </div>
+    </footer>
+</div>

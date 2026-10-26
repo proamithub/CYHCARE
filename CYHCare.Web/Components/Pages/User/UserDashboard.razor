@@ -1,0 +1,407 @@
+@page "/user/dashboard"
+@layout Layout.UserLayout
+@rendermode InteractiveServer
+@inject IJobService JobService
+@inject UserSessionService Session
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<PageTitle>Patient & Family Dashboard — CYH Care</PageTitle>
+
+@if (!Session.IsAuthenticated)
+{
+    <div class="row justify-content-center py-5">
+        <div class="col-md-6 text-center">
+            <div class="card shadow-sm border-0 p-5 rounded-4">
+                <i class="bi bi-shield-lock-fill text-primary fs-1 mb-3"></i>
+                <h4 class="fw-bold">Sign In Required</h4>
+                <p class="text-muted">Please sign in to your Patient & Family account to post care requests and view live companion tracking.</p>
+                <div class="mt-3">
+                    <a href="login" class="btn btn-primary px-4 rounded-pill">Sign In to Continue</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h3 class="fw-bold mb-1">Welcome back, @Session.FullName</h3>
+            <p class="text-muted mb-0">Role: <span class="badge bg-primary">Patient / Family</span> | Track hospital visits & companion assistance</p>
+        </div>
+        <button class="btn btn-primary rounded-pill shadow-sm px-4" @onclick='() => SwitchTab("newjob")'>
+            <i class="bi bi-plus-circle me-1"></i> Request New Assistance
+        </button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-pills mb-4 gap-2">
+        <li class="nav-item">
+            <button class="nav-link rounded-pill px-4 @(activeTab == "myjobs" ? "active fw-bold shadow-sm" : "bg-white text-secondary border")" @onclick='() => SwitchTab("myjobs")'>
+                <i class="bi bi-card-checklist me-1"></i> My Requests (@myJobs.Count)
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link rounded-pill px-4 @(activeTab == "newjob" ? "active fw-bold shadow-sm" : "bg-white text-secondary border")" @onclick='() => SwitchTab("newjob")'>
+                <i class="bi bi-plus-square me-1"></i> Request Assistance
+            </button>
+        </li>
+        @if (trackedJob != null)
+        {
+            <li class="nav-item">
+                <button class="nav-link rounded-pill px-4 @(activeTab == "tracking" ? "active bg-success text-white fw-bold shadow-sm" : "bg-white text-success border")" @onclick='() => SwitchTab("tracking")'>
+                    <i class="bi bi-geo-alt-fill me-1"></i> Live Companion: Job #@trackedJob.JobId
+                </button>
+            </li>
+        }
+    </ul>
+
+    <!-- Tab 1: My Jobs -->
+    @if (activeTab == "myjobs")
+    {
+        @if (isLoading)
+        {
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted mt-2">Loading your assistance requests...</p>
+            </div>
+        }
+        else if (!myJobs.Any())
+        {
+            <div class="text-center py-5 card border-0 shadow-sm rounded-4">
+                <div class="card-body">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <h5 class="fw-bold mt-3">No Care Requests Yet</h5>
+                    <p class="text-muted">You haven't requested any hospital companion or local assistance service yet.</p>
+                    <button class="btn btn-primary rounded-pill px-4" @onclick='() => SwitchTab("newjob")'>
+                        Create Your First Request
+                    </button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var job in myJobs)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm border-0 rounded-4">
+                            <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+                                <span class="badge @GetStatusBadgeClass(job.Status) rounded-pill px-3 py-1">@job.Status</span>
+                                <small class="text-muted fw-bold">#@job.JobId</small>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold text-dark">@job.ServiceType</h5>
+                                <p class="card-text text-muted small mb-2">
+                                    <i class="bi bi-geo-alt me-1 text-danger"></i> @job.Address
+                                </p>
+                                <p class="card-text text-muted small mb-2">
+                                    <i class="bi bi-clock me-1 text-primary"></i> Scheduled: @job.ScheduledAt.ToLocalTime().ToString("g")
+                                </p>
+
+                                @if (!string.IsNullOrEmpty(job.HelperName))
+                                {
+                                    <div class="p-3 bg-light rounded-3 mt-2 small">
+                                        <div class="fw-bold text-dark"><i class="bi bi-person-badge me-1 text-primary"></i> Companion: @job.HelperName</div>
+                                        <div class="text-muted"><i class="bi bi-telephone me-1"></i> @job.HelperPhone</div>
+                                    </div>
+                                }
+
+                                @if (job.PaymentAmount.HasValue && job.PaymentAmount > 0)
+                                {
+                                    <div class="mt-2 text-success fw-bold small">
+                                        <i class="bi bi-cash me-1"></i> Fee: ₹@job.PaymentAmount.Value.ToString("N2") (@job.PaymentStatus)
+                                    </div>
+                                }
+                            </div>
+                            <div class="card-footer bg-white border-0 pb-3">
+                                @if (job.Status is "Accepted" or "OnTheWay" or "Arrived" or "InProgress")
+                                {
+                                    <button class="btn btn-outline-success btn-sm w-100 rounded-pill" @onclick="() => StartTracking(job)">
+                                        <i class="bi bi-geo-alt-fill me-1"></i> Live Track Arrival
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+
+    <!-- Tab 2: Request New Job -->
+    @if (activeTab == "newjob")
+    {
+        <div class="card shadow-sm border-0 rounded-4" id="post-job-section">
+            <div class="card-body p-4 p-md-5">
+                <h5 class="fw-bold mb-3"><i class="bi bi-pencil-square me-2 text-primary"></i>Request Hospital Companion / Assistance</h5>
+
+                @if (!string.IsNullOrEmpty(jobSuccessMessage))
+                {
+                    <div class="alert alert-success py-2 small d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-2 fs-5"></i> @jobSuccessMessage
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(jobErrorMessage))
+                {
+                    <div class="alert alert-danger py-2 small d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> @jobErrorMessage
+                    </div>
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Service Type</label>
+                        <select class="form-select" @bind="newJob.ServiceType">
+                            <option value="Hospital Companion">Hospital Companion (OPD Visit)</option>
+                            <option value="Elderly Assistance">Elderly Assistance & Escort</option>
+                            <option value="Medicine & Report Pickup">Medicine & Lab Report Pickup</option>
+                            <option value="Wheelchair Assistance">Wheelchair Assistance & Navigation</option>
+                            <option value="Emergency Companion">Emergency Companion</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Scheduled Date & Time</label>
+                        <input type="datetime-local" class="form-control" @bind="scheduledDate" />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Hospital Name / Address</label>
+                        <input type="text" class="form-control" placeholder="e.g. AIIMS Hospital, Gate No. 2, New Delhi" @bind="newJob.Address" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Latitude</label>
+                        <input type="number" step="0.000001" class="form-control" @bind="newJob.Lat" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Longitude</label>
+                        <input type="number" step="0.000001" class="form-control" @bind="newJob.Lng" />
+                    </div>
+
+                    <div class="col-12">
+                        <div class="p-2 bg-light rounded-3 small text-muted">
+                            <i class="bi bi-info-circle me-1 text-primary"></i> Click anywhere on the map to pin destination coordinates accurately.
+                        </div>
+                        <div id="pickerMap" style="height: 280px; width: 100%;" class="rounded-3 border mt-2"></div>
+                    </div>
+
+                    <div class="col-12 mt-3">
+                        <button class="btn btn-primary px-4 py-3 rounded-pill fw-bold" @onclick="HandleCreateJob" disabled="@isSubmittingJob">
+                            @if (isSubmittingJob)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span> <span>Posting Request...</span>
+                            }
+                            else
+                            {
+                                <span><i class="bi bi-send-fill me-1"></i> Post Care Request</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Tab 3: Live Tracking Map -->
+    @if (activeTab == "tracking" && trackedJob != null)
+    {
+        <div class="card shadow-sm border-0 rounded-4" id="active-tracking">
+            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h5 class="fw-bold mb-0">Live Companion Tracking: @trackedJob.ServiceType</h5>
+                    <small class="text-muted"><i class="bi bi-geo-alt me-1 text-danger"></i> @trackedJob.Address</small>
+                </div>
+                <span class="badge @GetStatusBadgeClass(trackedJob.Status) fs-6 rounded-pill px-3">@trackedJob.Status</span>
+            </div>
+            <div class="card-body p-0 position-relative">
+                <!-- Progress Step Indicator -->
+                <div class="p-3 bg-light border-bottom d-flex justify-content-around text-center small flex-wrap gap-2">
+                    <div class="@(trackedJob.Status is "Accepted" or "OnTheWay" or "Arrived" or "InProgress" or "Completed" ? "text-success fw-bold" : "text-muted")">
+                        <i class="bi bi-check-circle-fill"></i> Accepted
+                    </div>
+                    <div class="text-muted">&rarr;</div>
+                    <div class="@(trackedJob.Status is "OnTheWay" or "Arrived" or "InProgress" or "Completed" ? "text-primary fw-bold" : "text-muted")">
+                        <i class="bi bi-bicycle"></i> On The Way
+                    </div>
+                    <div class="text-muted">&rarr;</div>
+                    <div class="@(trackedJob.Status is "Arrived" or "InProgress" or "Completed" ? "text-success fw-bold" : "text-muted")">
+                        <i class="bi bi-geo-fill"></i> Arrived (100m)
+                    </div>
+                    <div class="text-muted">&rarr;</div>
+                    <div class="@(trackedJob.Status is "InProgress" or "Completed" ? "text-info fw-bold" : "text-muted")">
+                        <i class="bi bi-hourglass-split"></i> In Progress
+                    </div>
+                    <div class="text-muted">&rarr;</div>
+                    <div class="@(trackedJob.Status == "Completed" ? "text-success fw-bold" : "text-muted")">
+                        <i class="bi bi-check2-all"></i> Completed
+                    </div>
+                </div>
+
+                <!-- Leaflet OpenStreetMap Container -->
+                <div id="liveTrackingMap" style="height: 480px; width: 100%;"></div>
+            </div>
+            <div class="card-footer bg-white p-3 border-0 d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="fw-bold">Helper:</span> @(trackedJob.HelperName ?? "Assigned Companion") 
+                    @if (!string.IsNullOrEmpty(trackedJob.HelperPhone))
+                    {
+                        <a href="tel:@trackedJob.HelperPhone" class="btn btn-sm btn-outline-primary rounded-pill ms-2">
+                            <i class="bi bi-telephone-fill me-1"></i> Call Companion
+                        </a>
+                    }
+                </div>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" @onclick="RefreshTracking">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Refresh Coordinates
+                </button>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private string activeTab = "myjobs";
+    private bool isLoading = true;
+    private List<JobResponseDto> myJobs = new();
+
+    // New Job Form State
+    private CreateJobRequestDto newJob = new()
+    {
+        ServiceType = "Hospital Companion",
+        Address = "AIIMS Hospital, Sri Aurobindo Marg, New Delhi",
+        Lat = 28.5672m,
+        Lng = 77.2100m
+    };
+    private DateTime scheduledDate = DateTime.Now.AddHours(1);
+    private bool isSubmittingJob = false;
+    private string? jobSuccessMessage;
+    private string? jobErrorMessage;
+
+    // Tracking State
+    private JobResponseDto? trackedJob;
+    private DotNetObjectReference<UserDashboard>? dotNetRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Session.IsAuthenticated)
+        {
+            await LoadJobsAsync();
+        }
+    }
+
+    private async Task LoadJobsAsync()
+    {
+        isLoading = true;
+        try
+        {
+            var jobs = await JobService.GetJobsByUserAsync(Session.UserId);
+            myJobs = jobs.ToList();
+        }
+        catch { }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task SwitchTab(string tab)
+    {
+        activeTab = tab;
+        if (tab == "myjobs")
+        {
+            await LoadJobsAsync();
+        }
+        else if (tab == "newjob")
+        {
+            await Task.Delay(200);
+            dotNetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("cyhMaps.initMap", "pickerMap", (double)newJob.Lat, (double)newJob.Lng, 14);
+            await JS.InvokeVoidAsync("cyhMaps.addOrUpdateMarker", "pickerMap", "picked_target", (double)newJob.Lat, (double)newJob.Lng, "Target Location", false);
+            await JS.InvokeVoidAsync("cyhMaps.enableClickPicker", "pickerMap", dotNetRef);
+        }
+    }
+
+    [JSInvokable]
+    public void OnLocationPicked(double lat, double lng)
+    {
+        newJob.Lat = Math.Round((decimal)lat, 6);
+        newJob.Lng = Math.Round((decimal)lng, 6);
+        StateHasChanged();
+    }
+
+    private async Task HandleCreateJob()
+    {
+        isSubmittingJob = true;
+        jobErrorMessage = null;
+        jobSuccessMessage = null;
+
+        try
+        {
+            newJob.ScheduledAt = scheduledDate.ToUniversalTime();
+            var res = await JobService.CreateJobAsync(Session.UserId, newJob);
+
+            jobSuccessMessage = $"Job #{res.JobId} posted successfully! Nearby helpers have been alerted.";
+            await Task.Delay(1200);
+            await LoadJobsAsync();
+            activeTab = "myjobs";
+        }
+        catch (Exception ex)
+        {
+            jobErrorMessage = ex.Message;
+        }
+        finally
+        {
+            isSubmittingJob = false;
+        }
+    }
+
+    private async Task StartTracking(JobResponseDto job)
+    {
+        trackedJob = job;
+        activeTab = "tracking";
+        await Task.Delay(300);
+
+        await JS.InvokeVoidAsync("cyhMaps.initMap", "liveTrackingMap", (double)job.Lat, (double)job.Lng, 15);
+
+        // Destination Marker (Green)
+        await JS.InvokeVoidAsync("cyhMaps.addOrUpdateMarker", "liveTrackingMap", "job_dest", (double)job.Lat, (double)job.Lng, $"<b>Destination</b><br/>{job.Address}", false);
+
+        // Helper Marker (Blue)
+        var helperLat = job.HelperLastLat ?? (job.Lat - 0.005m);
+        var helperLng = job.HelperLastLng ?? (job.Lng - 0.005m);
+        await JS.InvokeVoidAsync("cyhMaps.addOrUpdateMarker", "liveTrackingMap", "helper_pos", (double)helperLat, (double)helperLng, $"<b>Helper</b><br/>{job.HelperName ?? "Companion"}", true);
+    }
+
+    private async Task RefreshTracking()
+    {
+        if (trackedJob != null)
+        {
+            var refreshed = await JobService.GetJobByIdAsync(trackedJob.JobId);
+            trackedJob = refreshed;
+
+            if (trackedJob.HelperLastLat.HasValue && trackedJob.HelperLastLng.HasValue)
+            {
+                await JS.InvokeVoidAsync("cyhMaps.addOrUpdateMarker", "liveTrackingMap", "helper_pos", 
+                    (double)trackedJob.HelperLastLat.Value, (double)trackedJob.HelperLastLng.Value, 
+                    $"<b>Helper</b><br/>{trackedJob.HelperName}", true);
+            }
+        }
+    }
+
+    private string GetStatusBadgeClass(string status) => status switch
+    {
+        "Pending" => "bg-warning text-dark",
+        "Accepted" => "bg-info text-dark",
+        "OnTheWay" => "bg-primary text-white",
+        "Arrived" => "bg-success text-white",
+        "InProgress" => "bg-info text-white",
+        "Completed" => "bg-success text-white",
+        "Cancelled" => "bg-danger text-white",
+        _ => "bg-secondary text-white"
+    };
+}

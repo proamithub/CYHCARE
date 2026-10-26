@@ -1,0 +1,122 @@
+@inherits LayoutComponentBase
+@inject UserSessionService Session
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<div class="helper-portal-layout d-flex flex-column min-vh-100 bg-light">
+    <!-- Top Companion Header -->
+    <header class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm py-2 px-3 px-lg-4 border-bottom border-teal">
+        <div class="container-fluid">
+            <!-- Brand & Role Identifier -->
+            <div class="d-flex align-items-center">
+                <a class="navbar-brand d-flex align-items-center me-3 text-white" href="">
+                    <i class="bi bi-heart-pulse-fill text-danger fs-3 me-2 pulse-heart"></i>
+                    <span class="fw-bold fs-4">CYH <span class="text-info">Care</span></span>
+                </a>
+                <span class="badge bg-teal-subtle text-info fw-bold px-2 py-1 text-uppercase rounded-pill border border-info" style="font-size: 0.7rem;">
+                    <i class="bi bi-person-badge-fill me-1"></i> Companion Field Portal
+                </span>
+            </div>
+
+            <!-- Portal Navigation Links -->
+            <div class="d-none d-md-flex align-items-center gap-3 ms-4">
+                <NavLink class="nav-link text-white fw-medium px-2 py-1 rounded" href="helper/dashboard" Match="NavLinkMatch.All">
+                    <i class="bi bi-broadcast me-1 text-success"></i> Duty Station
+                </NavLink>
+                <a class="nav-link text-white-50 hover-white px-2 py-1" href="helper/dashboard#nearby-jobs">
+                    <i class="bi bi-radar me-1 text-warning"></i> Available Jobs
+                </a>
+                <a class="nav-link text-white-50 hover-white px-2 py-1" href="helper/dashboard#mission-actions">
+                    <i class="bi bi-geo-alt-fill me-1 text-info"></i> Active Mission
+                </a>
+            </div>
+
+            <!-- Helper Status & Profile -->
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                <a href="" class="btn btn-sm btn-outline-light rounded-pill px-3 d-none d-sm-inline-block">
+                    <i class="bi bi-house me-1"></i> Home
+                </a>
+
+                @if (Session.IsAuthenticated)
+                {
+                    <div class="dropdown">
+                        <button class="btn btn-outline-info btn-sm rounded-pill px-3 fw-medium d-flex align-items-center gap-2 shadow-sm dropdown-toggle text-white" type="button" data-bs-toggle="dropdown">
+                            <span class="pulse-live"></span>
+                            <span class="fw-semibold">@Session.FullName</span>
+                            @if (Session.IsVerified)
+                            {
+                                <i class="bi bi-patch-check-fill text-info" title="KYC Verified"></i>
+                            }
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                            <li class="px-3 py-2 border-bottom">
+                                <div class="fw-bold small text-dark">@Session.FullName</div>
+                                <div class="text-muted small">@Session.Email</div>
+                                <span class="badge @(Session.IsVerified ? "bg-success" : "bg-warning text-dark") mt-1">
+                                    @(Session.IsVerified ? "✓ Verified Helper" : "⌛ Verification Pending")
+                                </span>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2" href="helper/dashboard">
+                                    <i class="bi bi-speedometer2 me-2 text-primary"></i> Duty Console
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <button class="dropdown-item py-2 text-danger" @onclick="Logout">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Sign Out
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a href="login" class="btn btn-info btn-sm rounded-pill px-3 fw-bold">Sign In</a>
+                }
+            </div>
+        </div>
+    </header>
+
+    <!-- Sub-bar: Companion Safety & GPS Notice -->
+    <div class="bg-dark text-white-50 border-bottom border-secondary py-1 px-3 px-lg-4 text-center small d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-shield-lock-fill text-warning me-1"></i> Privacy Protected: GPS transmits only while actively On-The-Way or In-Progress</span>
+        <span class="d-none d-md-inline"><i class="bi bi-currency-rupee me-1"></i> Instant calculation of working hours upon completion</span>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow-1 p-3 p-lg-4">
+        <div class="container-fluid max-w-7xl">
+            @Body
+        </div>
+    </main>
+
+    <!-- Companion Footer -->
+    <footer class="bg-dark text-white-50 border-top border-secondary py-3 px-4 text-center small mt-auto">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center">
+            <span>&copy; 2026 CYH Care — Companion / Helper Field Station</span>
+            <div class="mt-1 mt-sm-0">
+                <a href="" class="text-decoration-none text-white-50 me-3">Public Home</a>
+                <span class="text-info"><i class="bi bi-geo-alt"></i> 100m Auto Geofence Active</span>
+            </div>
+        </div>
+    </footer>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Session.OnAuthStateChanged += StateHasChanged;
+    }
+
+    private void Logout()
+    {
+        Session.ClearSession();
+        Navigation.NavigateTo("/", forceLoad: false);
+    }
+
+    public void Dispose()
+    {
+        Session.OnAuthStateChanged -= StateHasChanged;
+    }
+}

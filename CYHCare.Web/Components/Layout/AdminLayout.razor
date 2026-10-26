@@ -1,0 +1,122 @@
+@inherits LayoutComponentBase
+@inject UserSessionService Session
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<div class="admin-executive-layout d-flex flex-column min-vh-100" style="background-color: #f1f5f9;">
+    <!-- Top Executive Command Bar -->
+    <header class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow py-2 px-3 px-lg-4 border-bottom border-dark-subtle" style="background: linear-gradient(90deg, #090d16 0%, #0f172a 100%) !important;">
+        <div class="container-fluid">
+            <!-- Brand & Executive Title -->
+            <div class="d-flex align-items-center">
+                <a class="navbar-brand d-flex align-items-center me-3 text-white" href="">
+                    <i class="bi bi-shield-shaded text-warning fs-3 me-2"></i>
+                    <span class="fw-bold fs-4">CYH <span class="text-primary">Care</span></span>
+                </a>
+                <span class="badge bg-warning text-dark fw-bold px-2 py-1 text-uppercase rounded-pill shadow-sm" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                    <i class="bi bi-shield-lock-fill me-1"></i> Executive Mission Control
+                </span>
+            </div>
+
+            <!-- Command Center Nav Links -->
+            <div class="d-none d-md-flex align-items-center gap-3 ms-4">
+                <NavLink class="nav-link text-white fw-medium px-2 py-1 rounded" href="admin" Match="NavLinkMatch.All">
+                    <i class="bi bi-radar me-1 text-primary"></i> Operations Map
+                </NavLink>
+                <a class="nav-link text-white-50 hover-white px-2 py-1" href="admin#kyc-queue">
+                    <i class="bi bi-person-check-fill me-1 text-warning"></i> Helper KYC Queue
+                </a>
+                <a class="nav-link text-white-50 hover-white px-2 py-1" href="admin#active-missions">
+                    <i class="bi bi-geo-alt-fill me-1 text-danger"></i> Live GPS Breadcrumbs
+                </a>
+            </div>
+
+            <!-- Admin Profile & Controls -->
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                <a href="" class="btn btn-sm btn-outline-light rounded-pill px-3 d-none d-sm-inline-block">
+                    <i class="bi bi-house me-1"></i> Public Site
+                </a>
+
+                @if (Session.IsAuthenticated)
+                {
+                    <div class="dropdown">
+                        <button class="btn btn-dark border border-secondary btn-sm rounded-pill px-3 fw-medium d-flex align-items-center gap-2 shadow-sm dropdown-toggle text-white" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-shield-fill-check text-warning"></i>
+                            <span>@Session.FullName</span>
+                            <span class="badge bg-danger small">Super Admin</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                            <li class="px-3 py-2 border-bottom">
+                                <div class="fw-bold small text-dark">@Session.FullName</div>
+                                <div class="text-muted small">@Session.Email</div>
+                                <span class="badge bg-dark mt-1">Administrator</span>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2" href="admin">
+                                    <i class="bi bi-speedometer2 me-2 text-primary"></i> Mission Control
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <button class="dropdown-item py-2 text-danger" @onclick="Logout">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Sign Out
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a href="login" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold text-dark">Admin Login</a>
+                }
+            </div>
+        </div>
+    </header>
+
+    <!-- Operational Telemetry Bar -->
+    <div class="bg-black text-white-50 py-1 px-3 px-lg-4 text-center small border-bottom border-dark d-flex justify-content-between align-items-center">
+        <span>
+            <span class="pulse-live me-1"></span>
+            <strong class="text-success">SYSTEM ONLINE</strong> — Live GPS tracking, Dapper 100% Stored Procedures, SignalR WebSockets Connected
+        </span>
+        <span class="d-none d-md-inline text-muted">
+            <i class="bi bi-clock me-1"></i> Telemetry Sync: UTC Active
+        </span>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow-1 p-3 p-lg-4">
+        <div class="container-fluid max-w-7xl">
+            @Body
+        </div>
+    </main>
+
+    <!-- Executive Footer -->
+    <footer class="bg-dark text-white-50 border-top border-dark-subtle py-3 px-4 text-center small mt-auto">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center">
+            <span>&copy; 2026 CYH Care Platform — Executive Operations & Compliance</span>
+            <div class="mt-1 mt-sm-0">
+                <a href="" class="text-decoration-none text-white-50 me-3">Public Portal</a>
+                <span class="text-warning"><i class="bi bi-shield-check"></i> High Security Audit Logging</span>
+            </div>
+        </div>
+    </footer>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Session.OnAuthStateChanged += StateHasChanged;
+    }
+
+    private void Logout()
+    {
+        Session.ClearSession();
+        Navigation.NavigateTo("/", forceLoad: false);
+    }
+
+    public void Dispose()
+    {
+        Session.OnAuthStateChanged -= StateHasChanged;
+    }
+}

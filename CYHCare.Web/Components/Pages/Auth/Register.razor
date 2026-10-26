@@ -1,0 +1,170 @@
+@page "/register"
+@layout Layout.AuthLayout
+@rendermode InteractiveServer
+@inject IAuthService AuthService
+@inject UserSessionService Session
+@inject NavigationManager Navigation
+
+<PageTitle>Register — CYH Care</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <!-- Header Banner -->
+            <div class="p-4 text-center text-white" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;">
+                <div class="mb-2">
+                    <span class="badge bg-white text-primary rounded-pill px-3 py-1 fw-bold text-uppercase small shadow-sm">
+                        <i class="bi bi-people-fill me-1"></i> People Help People
+                    </span>
+                </div>
+                <h3 class="fw-bold mb-1">Join the Care Community</h3>
+                <p class="text-white-50 small mb-0">Create your account in under 60 seconds</p>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <!-- Role Selection Tabs -->
+                <ul class="nav nav-pills nav-fill mb-4 p-1 bg-light rounded-pill border" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link rounded-pill py-2 @(selectedRole == "User" ? "active shadow-sm fw-bold" : "text-muted")" @onclick='() => SetRole("User")'>
+                            <i class="bi bi-person-heart me-1"></i> I Need Help (Patient/Family)
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link rounded-pill py-2 @(selectedRole == "Helper" ? "active bg-info text-dark shadow-sm fw-bold" : "text-muted")" @onclick='() => SetRole("Helper")'>
+                            <i class="bi bi-person-badge me-1"></i> I Want to Help (Companion)
+                        </button>
+                    </li>
+                </ul>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger py-2 small mb-3 d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill fs-5 me-2 flex-shrink-0"></i>
+                        <div>@errorMessage</div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(successMessage))
+                {
+                    <div class="alert alert-success py-2 small mb-3 d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill fs-5 me-2 flex-shrink-0"></i>
+                        <div>@successMessage</div>
+                    </div>
+                }
+
+                <EditForm Model="model" OnValidSubmit="HandleRegister">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Full Name</label>
+                            <InputText class="form-control" placeholder="e.g. Ramesh Kumar" @bind-Value="model.FullName" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Phone Number</label>
+                            <InputText class="form-control" placeholder="e.g. 9876543210" @bind-Value="model.Phone" required />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-secondary">Email Address</label>
+                            <InputText type="email" class="form-control" placeholder="name@example.com" @bind-Value="model.Email" required />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-secondary">Password</label>
+                            <InputText type="password" class="form-control" placeholder="Min. 6 characters" @bind-Value="model.Password" required />
+                        </div>
+
+                        @if (selectedRole == "Helper")
+                        {
+                            <div class="col-12">
+                                <div class="p-3 bg-light rounded-3 border">
+                                    <label class="form-label small fw-bold text-dark">
+                                        <i class="bi bi-cash-stack text-success me-1"></i> Desired Hourly Rate (₹ / Hour)
+                                    </label>
+                                    <InputNumber class="form-control" @bind-Value="model.HourlyRate" min="50" max="5000" />
+                                    <div class="form-text small text-muted">
+                                        Standard baseline is ₹100/hr. Payouts are generated automatically upon completing a hospital session.
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 py-3 mt-4 shadow-sm rounded-pill fw-bold" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span> <span>Creating Account...</span>
+                        }
+                        else
+                        {
+                            <span>Register as @(selectedRole == "Helper" ? "Hospital Companion" : "User")</span>
+                        }
+                    </button>
+                </EditForm>
+
+                <div class="text-center mt-4">
+                    <span class="text-muted small">Already have an account? </span>
+                    <a href="login" class="small fw-bold text-primary text-decoration-none">Sign In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "role")]
+    public string? RoleParam { get; set; }
+
+    private UserRegisterRequestDto model = new();
+    private string selectedRole = "User";
+    private string? errorMessage;
+    private string? successMessage;
+    private bool isSubmitting = false;
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(RoleParam) && RoleParam.Equals("Helper", StringComparison.OrdinalIgnoreCase))
+        {
+            selectedRole = "Helper";
+        }
+        model.Role = selectedRole;
+        model.HourlyRate = 100.00m;
+    }
+
+    private void SetRole(string role)
+    {
+        selectedRole = role;
+        model.Role = role;
+    }
+
+    private async Task HandleRegister()
+    {
+        isSubmitting = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            model.Role = selectedRole;
+            var res = await AuthService.RegisterAsync(model);
+            Session.SetSession(res);
+
+            successMessage = "Account created successfully! Redirecting...";
+
+            await Task.Delay(800);
+
+            if (res.Role == "Helper")
+                Navigation.NavigateTo("/helper/dashboard");
+            else
+                Navigation.NavigateTo("/user/dashboard");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

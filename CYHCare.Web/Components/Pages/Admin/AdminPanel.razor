@@ -1,8 +1,6 @@
 @page "/admin"
+@layout Layout.AdminLayout
 @rendermode InteractiveServer
-@using CYHCare.Application.Common.Interfaces
-@using CYHCare.Application.DTOs
-@using CYHCare.Web.Services
 @inject IAdminRepository AdminRepo
 @inject IHelperService HelperService
 @inject IPaymentRepository PaymentRepo
@@ -12,9 +10,25 @@
 
 <PageTitle>CYH Care — Admin Mission Control</PageTitle>
 
-<div class="container-fluid py-4 px-md-4">
+@if (!Session.IsAuthenticated || Session.Role != "Admin")
+{
+    <div class="row justify-content-center py-5">
+        <div class="col-md-6 text-center">
+            <div class="card shadow-lg border-0 p-5 rounded-4 bg-dark text-white">
+                <i class="bi bi-shield-lock-fill text-warning fs-1 mb-3"></i>
+                <h4 class="fw-bold text-white">Executive Clearance Required</h4>
+                <p class="text-white-50">You must be authenticated with an Administrator account to view telemetry and dispatch controls.</p>
+                <div class="mt-3">
+                    <a href="login" class="btn btn-warning px-4 rounded-pill fw-bold text-dark">Sign In to Mission Control</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
     <!-- Executive Top Header -->
-    <div class="card border-0 shadow-sm bg-dark text-white rounded-4 p-4 mb-4">
+    <div class="card border-0 shadow-sm bg-dark text-white rounded-4 p-4 mb-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <div class="d-inline-flex align-items-center gap-2 mb-2">
@@ -42,7 +56,7 @@
     <!-- KPI Metric Cards -->
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-xl-3">
-            <div class="card admin-kpi-card bg-primary text-white p-3">
+            <div class="card admin-kpi-card bg-primary text-white p-3 rounded-4 shadow-sm">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="text-white-50 small fw-bold text-uppercase">Active Companion Jobs</div>
@@ -57,7 +71,7 @@
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="card admin-kpi-card bg-success text-white p-3">
+            <div class="card admin-kpi-card bg-success text-white p-3 rounded-4 shadow-sm">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="text-white-50 small fw-bold text-uppercase">On-Duty Verified Helpers</div>
@@ -72,7 +86,7 @@
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="card admin-kpi-card bg-warning text-dark p-3">
+            <div class="card admin-kpi-card bg-warning text-dark p-3 rounded-4 shadow-sm">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="text-muted small fw-bold text-uppercase">KYC Verification Queue</div>
@@ -87,7 +101,7 @@
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="card admin-kpi-card bg-dark text-white p-3">
+            <div class="card admin-kpi-card bg-dark text-white p-3 rounded-4 shadow-sm">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="text-white-50 small fw-bold text-uppercase">Completed Missions Today</div>
@@ -128,7 +142,7 @@
     <!-- Tab 1: Live City Radar Map -->
     @if (activeTab == "livemap")
     {
-        <div class="row g-4">
+        <div class="row g-4" id="active-missions">
             <div class="col-lg-9">
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                     <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
@@ -187,7 +201,7 @@
     <!-- Tab 2: Helper KYC Queue -->
     @if (activeTab == "kyc")
     {
-        <div class="card border-0 shadow-sm rounded-4">
+        <div class="card border-0 shadow-sm rounded-4" id="kyc-queue">
             <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="fw-bold mb-0">Helper Background & KYC Verification</h5>
@@ -332,7 +346,7 @@
             </div>
         </div>
     }
-</div>
+}
 
 @code {
     private string activeTab = "livemap";
