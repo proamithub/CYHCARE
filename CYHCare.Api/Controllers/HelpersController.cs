@@ -36,6 +36,19 @@ public class HelpersController : ControllerBase
     }
 
     /// <summary>
+    /// Toggles location sharing privacy setting for helper (Helper only).
+    /// </summary>
+    [HttpPut("location-sharing")]
+    [Authorize(Roles = "Helper")]
+    [ProducesResponseType(typeof(ApiResponse<HelperProfileDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SetLocationSharing([FromBody] bool locationSharing)
+    {
+        var helperId = GetCurrentHelperId();
+        var result = await _helperService.SetLocationSharingAsync(helperId, locationSharing);
+        return Ok(ApiResponse<HelperProfileDto>.Ok(result, $"Location sharing privacy set to {(locationSharing ? "Enabled" : "Disabled")}."));
+    }
+
+    /// <summary>
     /// Updates live GPS coordinates for helper (Helper only).
     /// </summary>
     [HttpPut("location")]

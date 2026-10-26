@@ -24,6 +24,11 @@ public interface IHelperRepository
     Task<HelperProfile?> SetDutyAsync(int helperId, bool isOnDuty);
 
     /// <summary>
+    /// Calls sp_Helper_SetLocationSharing to toggle privacy location sharing.
+    /// </summary>
+    Task<HelperProfile?> SetLocationSharingAsync(int helperId, bool locationSharing);
+
+    /// <summary>
     /// Calls sp_Helper_UpdateLocation to update current GPS coordinates.
     /// </summary>
     Task<HelperProfile?> UpdateLocationAsync(int helperId, decimal lat, decimal lng);

@@ -65,6 +65,22 @@ public class HelperRepository : IHelperRepository
         );
     }
 
+    public async Task<HelperProfile?> SetLocationSharingAsync(int helperId, bool locationSharing)
+    {
+        _logger.LogInformation("Calling sp_Helper_SetLocationSharing for HelperId: {HelperId}, LocationSharing: {LocationSharing}", helperId, locationSharing);
+
+        using var connection = _connectionFactory.CreateConnection();
+        var parameters = new DynamicParameters();
+        parameters.Add("@HelperId", helperId);
+        parameters.Add("@LocationSharing", locationSharing);
+
+        return await connection.QuerySingleOrDefaultAsync<HelperProfile>(
+            "sp_Helper_SetLocationSharing",
+            parameters,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
     public async Task<HelperProfile?> UpdateLocationAsync(int helperId, decimal lat, decimal lng)
     {
         using var connection = _connectionFactory.CreateConnection();

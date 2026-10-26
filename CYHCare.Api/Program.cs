@@ -1,7 +1,10 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using CYHCare.Api.BackgroundServices;
 using CYHCare.Api.Hubs;
 using CYHCare.Api.Middleware;
 using CYHCare.Api.Services;
@@ -18,6 +21,9 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // Register real-time SignalR notification dispatcher
 builder.Services.AddScoped<INotificationDispatcher, SignalRNotificationDispatcher>();
 
+// Register scheduled background GPS telemetry data retention service (Phase 9)
+builder.Services.AddHostedService<GpsRetentionBackgroundService>();
+
 // 2. Add SignalR
 builder.Services.AddSignalR();
 
@@ -33,7 +39,23 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 4. Configure JWT Authentication (with SignalR query string token support)
+// 4. Rate Limiting Protection (Phase 9 Hardening)
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 120,
+                QueueLimit = 20,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+});
+
+// 5. Configure JWT Authentication (with SignalR query string token support)
 var jwtSecret = builder.Configuration["JwtSettings:Secret"] 
     ?? "CYHCare_SuperSecretKey_For_Jwt_Auth_2026_Secure_Min32Chars!";
 var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "CYHCare.Api";
@@ -78,10 +100,10 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// 5. Controllers
+// 6. Controllers
 builder.Services.AddControllers();
 
-// 6. Swagger with JWT Bearer Support
+// 7. Swagger with JWT Bearer Support
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -89,7 +111,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "CYH Care API",
         Version = "v1",
-        Description = "ASP.NET Core Web API & SignalR Tracking for CYH Care (People Help People)."
+        Description = "ASP.NET Core Web API, SignalR Tracking & Privacy Retention for CYH Care (People Help People)."
     });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -120,7 +142,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// 7. Global Exception Middleware
+// 8. Global Exception Middleware (must be first)
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // Configure HTTP request pipeline
@@ -137,12 +159,15 @@ app.UseHttpsRedirection();
 
 app.UseCors("CorsPolicy");
 
+// Rate Limiter
+app.UseRateLimiter();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-// 8. Map SignalR Tracking Hub
+// 9. Map SignalR Tracking Hub
 app.MapHub<TrackingHub>("/hubs/tracking");
 
 app.Run();

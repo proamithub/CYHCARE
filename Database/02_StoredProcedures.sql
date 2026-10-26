@@ -1017,3 +1017,25 @@ BEGIN
     WHERE j.[JobId] = @JobId;
 END
 GO
+
+-- ============================================================================
+-- 25. sp_Helper_SetLocationSharing
+-- Purpose: Allows a helper to toggle LocationSharing ON/OFF for privacy control.
+-- ============================================================================
+CREATE OR ALTER PROCEDURE [dbo].[sp_Helper_SetLocationSharing]
+    @HelperId INT,
+    @LocationSharing BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE [dbo].[HelperProfiles]
+    SET [LocationSharing] = @LocationSharing,
+        [LastUpdate] = SYSUTCDATETIME()
+    WHERE [HelperId] = @HelperId;
+
+    SELECT [HelperId], [LocationSharing], [IsOnDuty], [KycStatus], [LastUpdate]
+    FROM [dbo].[HelperProfiles]
+    WHERE [HelperId] = @HelperId;
+END
+GO

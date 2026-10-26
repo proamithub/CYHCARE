@@ -3,7 +3,7 @@ using CYHCare.Application.DTOs;
 namespace CYHCare.Application.Common.Interfaces;
 
 /// <summary>
-/// Service interface for Helper duty, location updates, and admin KYC approvals.
+/// Service interface for Helper duty, location updates, privacy controls, and admin KYC approvals.
 /// </summary>
 public interface IHelperService
 {
@@ -11,6 +11,11 @@ public interface IHelperService
     /// Switches on/off duty for an approved helper.
     /// </summary>
     Task<HelperProfileDto> SetDutyAsync(int helperId, bool isOnDuty);
+
+    /// <summary>
+    /// Toggles location sharing for privacy control.
+    /// </summary>
+    Task<HelperProfileDto> SetLocationSharingAsync(int helperId, bool locationSharing);
 
     /// <summary>
     /// Updates live location coordinates for helper.

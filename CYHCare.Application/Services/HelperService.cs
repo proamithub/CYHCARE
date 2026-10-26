@@ -5,7 +5,7 @@ using CYHCare.Application.DTOs;
 namespace CYHCare.Application.Services;
 
 /// <summary>
-/// Handles Helper profile operations: duty toggling, live coordinates, and KYC approval workflows.
+/// Handles Helper profile operations: duty toggling, live coordinates, privacy controls, and KYC approval workflows.
 /// </summary>
 public class HelperService : IHelperService
 {
@@ -34,19 +34,21 @@ public class HelperService : IHelperService
         if (profile == null)
             throw new InvalidOperationException("Failed to update helper duty status.");
 
-        return new HelperProfileDto
-        {
-            HelperId = profile.HelperId,
-            UserId = profile.UserId,
-            KycStatus = profile.KycStatus,
-            IsOnDuty = profile.IsOnDuty,
-            LocationSharing = profile.LocationSharing,
-            LastLat = profile.LastLat,
-            LastLng = profile.LastLng,
-            LastUpdate = profile.LastUpdate,
-            HourlyRate = profile.HourlyRate,
-            Rating = profile.Rating
-        };
+        return MapToDto(profile);
+    }
+
+    /// <summary>
+    /// Toggles location sharing for privacy control.
+    /// </summary>
+    public async Task<HelperProfileDto> SetLocationSharingAsync(int helperId, bool locationSharing)
+    {
+        _logger.LogInformation("Updating location sharing privacy for Helper {HelperId} to {LocationSharing}", helperId, locationSharing);
+
+        var profile = await _helperRepository.SetLocationSharingAsync(helperId, locationSharing);
+        if (profile == null)
+            throw new InvalidOperationException("Failed to update location sharing status.");
+
+        return MapToDto(profile);
     }
 
     /// <summary>
@@ -58,19 +60,7 @@ public class HelperService : IHelperService
         if (profile == null)
             throw new InvalidOperationException("Failed to update helper location.");
 
-        return new HelperProfileDto
-        {
-            HelperId = profile.HelperId,
-            UserId = profile.UserId,
-            KycStatus = profile.KycStatus,
-            IsOnDuty = profile.IsOnDuty,
-            LocationSharing = profile.LocationSharing,
-            LastLat = profile.LastLat,
-            LastLng = profile.LastLng,
-            LastUpdate = profile.LastUpdate,
-            HourlyRate = profile.HourlyRate,
-            Rating = profile.Rating
-        };
+        return MapToDto(profile);
     }
 
     /// <summary>
@@ -92,7 +82,6 @@ public class HelperService : IHelperService
         if (profile == null)
             throw new InvalidOperationException("Failed to update KYC status.");
 
-        // Notify helper
         try
         {
             await _notificationRepository.CreateAsync(
@@ -106,6 +95,11 @@ public class HelperService : IHelperService
             _logger.LogWarning(ex, "Failed to send KYC notification to user {UserId}", profile.UserId);
         }
 
+        return MapToDto(profile);
+    }
+
+    private static HelperProfileDto MapToDto(Domain.Entities.HelperProfile profile)
+    {
         return new HelperProfileDto
         {
             HelperId = profile.HelperId,
@@ -113,6 +107,9 @@ public class HelperService : IHelperService
             KycStatus = profile.KycStatus,
             IsOnDuty = profile.IsOnDuty,
             LocationSharing = profile.LocationSharing,
+            LastLat = profile.LastLat,
+            LastLng = profile.LastLng,
+            LastUpdate = profile.LastUpdate,
             HourlyRate = profile.HourlyRate,
             Rating = profile.Rating
         };
