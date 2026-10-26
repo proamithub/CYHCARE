@@ -1,18 +1,26 @@
-// CYH Care — Leaflet.js + OpenStreetMap Interop Helper
+// CYH Care — High Performance Leaflet.js + OpenStreetMap Interop Helper
 window.cyhMaps = window.cyhMaps || {};
 
 window.cyhMaps.initMap = function (elementId, centerLat, centerLng, zoom) {
     if (!document.getElementById(elementId)) return;
 
-    // Destroy existing map instance on this container if any
     if (window.cyhMaps[elementId] && window.cyhMaps[elementId].map) {
         window.cyhMaps[elementId].map.remove();
     }
 
-    var map = L.map(elementId).setView([centerLat, centerLng], zoom || 14);
+    // High performance hardware accelerated canvas mode
+    var map = L.map(elementId, {
+        preferCanvas: true,
+        zoomControl: true,
+        fadeAnimation: true,
+        markerZoomAnimation: true
+    }).setView([centerLat, centerLng], zoom || 14);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
+        updateWhenIdle: true,
+        updateWhenZooming: false,
+        keepBuffer: 3,
         attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
@@ -24,21 +32,21 @@ window.cyhMaps.initMap = function (elementId, centerLat, centerLng, zoom) {
 
     setTimeout(function () {
         map.invalidateSize();
-    }, 200);
+    }, 150);
 };
 
 window.cyhMaps.addOrUpdateMarker = function (elementId, markerId, lat, lng, popupHtml, isHelper) {
     var instance = window.cyhMaps[elementId];
     if (!instance || !instance.map) return;
 
-    var iconColor = isHelper ? '#0d6efd' : '#198754';
-    var iconHtml = '<div style="background-color:' + iconColor + '; width:24px; height:24px; border-radius:50%; border:3px solid white; box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>';
+    var iconColor = isHelper ? '#0284c7' : '#16a34a';
+    var iconHtml = '<div style="background-color:' + iconColor + '; width:22px; height:22px; border-radius:50%; border:3px solid white; box-shadow:0 2px 6px rgba(0,0,0,0.35);"></div>';
 
     var customIcon = L.divIcon({
         className: 'cyh-custom-marker',
         html: iconHtml,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
     });
 
     if (instance.markers[markerId]) {
@@ -54,7 +62,7 @@ window.cyhMaps.addOrUpdateMarker = function (elementId, markerId, lat, lng, popu
 window.cyhMaps.centerMap = function (elementId, lat, lng, zoom) {
     var instance = window.cyhMaps[elementId];
     if (instance && instance.map) {
-        instance.map.setView([lat, lng], zoom || instance.map.getZoom());
+        instance.map.setView([lat, lng], zoom || instance.map.getZoom(), { animate: true });
     }
 };
 

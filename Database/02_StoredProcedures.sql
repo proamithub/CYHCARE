@@ -374,8 +374,8 @@ BEGIN
                 )
             ), 2
         ) AS [DistanceKm]
-    FROM [dbo].[HelperProfiles] hp
-    INNER JOIN [dbo].[Users] u ON hp.[UserId] = u.[UserId]
+    FROM [dbo].[HelperProfiles] hp WITH (NOLOCK)
+    INNER JOIN [dbo].[Users] u WITH (NOLOCK) ON hp.[UserId] = u.[UserId]
     WHERE hp.[IsOnDuty] = 1
       AND hp.[KycStatus] = 'Approved'
       AND hp.[LocationSharing] = 1
@@ -758,11 +758,11 @@ BEGIN
         ja.[EndedAt],
         p.[Amount] AS [PaymentAmount],
         p.[Status] AS [PaymentStatus]
-    FROM [dbo].[Jobs] j
-    LEFT JOIN [dbo].[JobAssignments] ja ON j.[JobId] = ja.[JobId]
-    LEFT JOIN [dbo].[HelperProfiles] hp ON ja.[HelperId] = hp.[HelperId]
-    LEFT JOIN [dbo].[Users] uHelper ON hp.[UserId] = uHelper.[UserId]
-    LEFT JOIN [dbo].[Payments] p ON ja.[AssignmentId] = p.[AssignmentId]
+    FROM [dbo].[Jobs] j WITH (NOLOCK)
+    LEFT JOIN [dbo].[JobAssignments] ja WITH (NOLOCK) ON j.[JobId] = ja.[JobId]
+    LEFT JOIN [dbo].[HelperProfiles] hp WITH (NOLOCK) ON ja.[HelperId] = hp.[HelperId]
+    LEFT JOIN [dbo].[Users] uHelper WITH (NOLOCK) ON hp.[UserId] = uHelper.[UserId]
+    LEFT JOIN [dbo].[Payments] p WITH (NOLOCK) ON ja.[AssignmentId] = p.[AssignmentId]
     WHERE j.[RequesterId] = @RequesterId
     ORDER BY j.[CreatedAt] DESC;
 END
@@ -816,13 +816,13 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT 
-        (SELECT COUNT(1) FROM [dbo].[Jobs] WHERE [Status] IN ('Accepted', 'OnTheWay', 'Arrived', 'InProgress')) AS [ActiveJobsCount],
-        (SELECT COUNT(1) FROM [dbo].[Jobs] WHERE [Status] = 'Pending') AS [PendingJobsCount],
-        (SELECT COUNT(1) FROM [dbo].[Jobs] WHERE [Status] = 'Arrived') AS [ArrivedJobsCount],
-        (SELECT COUNT(1) FROM [dbo].[Jobs] WHERE [Status] = 'InProgress') AS [InProgressJobsCount],
-        (SELECT COUNT(1) FROM [dbo].[HelperProfiles] WHERE [IsOnDuty] = 1 AND [KycStatus] = 'Approved') AS [OnDutyHelpersCount],
-        (SELECT COUNT(1) FROM [dbo].[HelperProfiles] WHERE [KycStatus] = 'Pending') AS [PendingKycCount],
-        (SELECT COUNT(1) FROM [dbo].[Jobs] WHERE [Status] = 'Completed' AND CAST([CreatedAt] AS DATE) = CAST(SYSUTCDATETIME() AS DATE)) AS [CompletedTodayCount];
+        (SELECT COUNT(1) FROM [dbo].[Jobs] WITH (NOLOCK) WHERE [Status] IN ('Accepted', 'OnTheWay', 'Arrived', 'InProgress')) AS [ActiveJobsCount],
+        (SELECT COUNT(1) FROM [dbo].[Jobs] WITH (NOLOCK) WHERE [Status] = 'Pending') AS [PendingJobsCount],
+        (SELECT COUNT(1) FROM [dbo].[Jobs] WITH (NOLOCK) WHERE [Status] = 'Arrived') AS [ArrivedJobsCount],
+        (SELECT COUNT(1) FROM [dbo].[Jobs] WITH (NOLOCK) WHERE [Status] = 'InProgress') AS [InProgressJobsCount],
+        (SELECT COUNT(1) FROM [dbo].[HelperProfiles] WITH (NOLOCK) WHERE [IsOnDuty] = 1 AND [KycStatus] = 'Approved') AS [OnDutyHelpersCount],
+        (SELECT COUNT(1) FROM [dbo].[HelperProfiles] WITH (NOLOCK) WHERE [KycStatus] = 'Pending') AS [PendingKycCount],
+        (SELECT COUNT(1) FROM [dbo].[Jobs] WITH (NOLOCK) WHERE [Status] = 'Completed' AND CAST([CreatedAt] AS DATE) = CAST(SYSUTCDATETIME() AS DATE)) AS [CompletedTodayCount];
 END
 GO
 
@@ -855,11 +855,11 @@ BEGIN
         ja.[AcceptedAt],
         ja.[ArrivedAt],
         ja.[StartedAt]
-    FROM [dbo].[Jobs] j
-    INNER JOIN [dbo].[Users] uReq ON j.[RequesterId] = uReq.[UserId]
-    LEFT JOIN [dbo].[JobAssignments] ja ON j.[JobId] = ja.[JobId]
-    LEFT JOIN [dbo].[HelperProfiles] hp ON ja.[HelperId] = hp.[HelperId]
-    LEFT JOIN [dbo].[Users] uHelper ON hp.[UserId] = uHelper.[UserId]
+    FROM [dbo].[Jobs] j WITH (NOLOCK)
+    INNER JOIN [dbo].[Users] uReq WITH (NOLOCK) ON j.[RequesterId] = uReq.[UserId]
+    LEFT JOIN [dbo].[JobAssignments] ja WITH (NOLOCK) ON j.[JobId] = ja.[JobId]
+    LEFT JOIN [dbo].[HelperProfiles] hp WITH (NOLOCK) ON ja.[HelperId] = hp.[HelperId]
+    LEFT JOIN [dbo].[Users] uHelper WITH (NOLOCK) ON hp.[UserId] = uHelper.[UserId]
     WHERE j.[Status] IN ('Accepted', 'OnTheWay', 'Arrived', 'InProgress')
     ORDER BY j.[CreatedAt] DESC;
 END

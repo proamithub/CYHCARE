@@ -1,7 +1,9 @@
+using System.IO.Compression;
 using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using CYHCare.Api.BackgroundServices;
@@ -14,7 +16,28 @@ using CYHCare.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Add Application and Infrastructure Dependency Injection layers
+// 1. High-Speed Response Compression (Brotli + Gzip)
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
+
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
+
+// 2. High-Performance In-Memory Cache
+builder.Services.AddMemoryCache();
+
+// 3. Add Application and Infrastructure Dependency Injection layers
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -24,10 +47,15 @@ builder.Services.AddScoped<INotificationDispatcher, SignalRNotificationDispatche
 // Register scheduled background GPS telemetry data retention service (Phase 9)
 builder.Services.AddHostedService<GpsRetentionBackgroundService>();
 
-// 2. Add SignalR
-builder.Services.AddSignalR();
+// 4. Add SignalR with options
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = false;
+    options.KeepAliveInterval = TimeSpan.FromSeconds(10);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+});
 
-// 3. Configure CORS (allow Blazor Web and Hybrid apps)
+// 5. Configure CORS (allow Blazor Web and Hybrid apps)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
@@ -39,7 +67,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 4. Rate Limiting Protection (Phase 9 Hardening)
+// 6. Rate Limiting Protection (Phase 9 Hardening)
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -49,13 +77,13 @@ builder.Services.AddRateLimiter(options =>
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 AutoReplenishment = true,
-                PermitLimit = 120,
-                QueueLimit = 20,
+                PermitLimit = 150,
+                QueueLimit = 30,
                 Window = TimeSpan.FromMinutes(1)
             }));
 });
 
-// 5. Configure JWT Authentication (with SignalR query string token support)
+// 7. Configure JWT Authentication (with SignalR query string token support)
 var jwtSecret = builder.Configuration["JwtSettings:Secret"] 
     ?? "CYHCare_SuperSecretKey_For_Jwt_Auth_2026_Secure_Min32Chars!";
 var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "CYHCare.Api";
@@ -100,10 +128,10 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// 6. Controllers
+// 8. Controllers
 builder.Services.AddControllers();
 
-// 7. Swagger with JWT Bearer Support
+// 9. Swagger with JWT Bearer Support
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -142,7 +170,10 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// 8. Global Exception Middleware (must be first)
+// Enable Response Compression at the start of pipeline
+app.UseResponseCompression();
+
+// Global Exception Middleware
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // Configure HTTP request pipeline
@@ -167,7 +198,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// 9. Map SignalR Tracking Hub
+// 10. Map SignalR Tracking Hub
 app.MapHub<TrackingHub>("/hubs/tracking");
 
 app.Run();

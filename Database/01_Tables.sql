@@ -194,3 +194,45 @@ BEGIN
     );
 END
 GO
+
+-- ============================================================================
+-- High-Performance Database Indexes (Speed Optimization)
+-- ============================================================================
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = N'IX_Jobs_Requester_CreatedAt' AND object_id = OBJECT_ID(N'[dbo].[Jobs]'))
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_Jobs_Requester_CreatedAt]
+        ON [dbo].[Jobs] ([RequesterId] ASC, [CreatedAt] DESC)
+        INCLUDE ([Status], [ServiceType], [Address], [Lat], [Lng], [ScheduledAt]);
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = N'IX_Jobs_Status' AND object_id = OBJECT_ID(N'[dbo].[Jobs]'))
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_Jobs_Status]
+        ON [dbo].[Jobs] ([Status] ASC, [CreatedAt] DESC)
+        INCLUDE ([JobId], [RequesterId], [ServiceType], [Address], [Lat], [Lng]);
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = N'IX_HelperProfiles_Nearby' AND object_id = OBJECT_ID(N'[dbo].[HelperProfiles]'))
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_HelperProfiles_Nearby]
+        ON [dbo].[HelperProfiles] ([IsOnDuty] ASC, [KycStatus] ASC, [LocationSharing] ASC)
+        INCLUDE ([UserId], [HourlyRate], [Rating], [LastLat], [LastLng], [LastUpdate]);
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = N'IX_JobAssignments_Helper' AND object_id = OBJECT_ID(N'[dbo].[JobAssignments]'))
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_JobAssignments_Helper]
+        ON [dbo].[JobAssignments] ([HelperId] ASC, [AcceptedAt] DESC)
+        INCLUDE ([JobId], [ArrivedAt], [StartedAt], [EndedAt]);
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = N'IX_Notifications_User_Read' AND object_id = OBJECT_ID(N'[dbo].[Notifications]'))
+BEGIN
+    CREATE NONCLUSTERED INDEX [IX_Notifications_User_Read]
+        ON [dbo].[Notifications] ([UserId] ASC, [IsRead] ASC, [SentAt] DESC);
+END
+GO
