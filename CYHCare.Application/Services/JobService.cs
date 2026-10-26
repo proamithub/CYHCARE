@@ -13,15 +13,18 @@ public class JobService : IJobService
 {
     private readonly IJobRepository _jobRepository;
     private readonly INotificationRepository _notificationRepository;
+    private readonly INotificationDispatcher _notificationDispatcher;
     private readonly ILogger<JobService> _logger;
 
     public JobService(
         IJobRepository jobRepository,
         INotificationRepository notificationRepository,
+        INotificationDispatcher notificationDispatcher,
         ILogger<JobService> logger)
     {
         _jobRepository = jobRepository;
         _notificationRepository = notificationRepository;
+        _notificationDispatcher = notificationDispatcher;
         _logger = logger;
     }
 
@@ -57,12 +60,12 @@ public class JobService : IJobService
             var nearbyHelpers = await _jobRepository.GetNearbyHelpersAsync(job.Lat, job.Lng, 5.0m);
             foreach (var helper in nearbyHelpers)
             {
-                await _notificationRepository.CreateAsync(
-                    helper.UserId,
-                    job.JobId,
-                    $"New {job.ServiceType} job available near you ({helper.DistanceKm} km away) at {job.Address}."
-                );
+                var msg = $"New {job.ServiceType} job available near you ({helper.DistanceKm} km away) at {job.Address}.";
+                await _notificationRepository.CreateAsync(helper.UserId, job.JobId, msg);
+                await _notificationDispatcher.PushUserNotificationAsync(helper.UserId, msg, job.JobId);
             }
+
+            await _notificationDispatcher.PushAdminAlertAsync($"New job #{job.JobId} posted by user #{job.RequesterId}", job);
         }
         catch (Exception ex)
         {
@@ -117,11 +120,10 @@ public class JobService : IJobService
         // Notify requester that a helper is assigned
         try
         {
-            await _notificationRepository.CreateAsync(
-                result.RequesterId,
-                jobId,
-                "A verified helper has accepted your job request and will be on the way shortly."
-            );
+            var msg = "A verified helper has accepted your job request and will be on the way shortly.";
+            await _notificationRepository.CreateAsync(result.RequesterId, jobId, msg);
+            await _notificationDispatcher.PushUserNotificationAsync(result.RequesterId, msg, jobId);
+            await _notificationDispatcher.PushJobStatusUpdateAsync(jobId, "Accepted", result);
         }
         catch (Exception ex)
         {
@@ -173,14 +175,27 @@ public class JobService : IJobService
         // Send notifications on key state changes
         try
         {
-            if (request.NewStatus.Equals("Arrived", StringComparison.OrdinalIgnoreCase))
+            string? msg = null;
+            if (request.NewStatus.Equals("OnTheWay", StringComparison.OrdinalIgnoreCase))
             {
-                await _notificationRepository.CreateAsync(job.RequesterId, jobId, "Your helper has arrived at the destination.");
+                msg = "Helper is now on the way to your location.";
+            }
+            else if (request.NewStatus.Equals("Arrived", StringComparison.OrdinalIgnoreCase))
+            {
+                msg = "Your helper has arrived at the destination.";
             }
             else if (request.NewStatus.Equals("InProgress", StringComparison.OrdinalIgnoreCase))
             {
-                await _notificationRepository.CreateAsync(job.RequesterId, jobId, "Your assistance session has started.");
+                msg = "Your assistance session has started.";
             }
+
+            if (!string.IsNullOrEmpty(msg))
+            {
+                await _notificationRepository.CreateAsync(job.RequesterId, jobId, msg);
+                await _notificationDispatcher.PushUserNotificationAsync(job.RequesterId, msg, jobId);
+            }
+
+            await _notificationDispatcher.PushJobStatusUpdateAsync(jobId, request.NewStatus, updated);
         }
         catch (Exception ex)
         {
@@ -207,12 +222,12 @@ public class JobService : IJobService
             var job = await _jobRepository.GetByIdAsync(jobId);
             if (job != null)
             {
-                await _notificationRepository.CreateAsync(
-                    job.RequesterId,
-                    jobId,
-                    $"Job completed! Total duration: {result.WorkingMinutes} minutes. Amount: ₹{result.Amount:N2}."
-                );
+                var msg = $"Job completed! Total duration: {result.WorkingMinutes} minutes. Amount: ₹{result.Amount:N2}.";
+                await _notificationRepository.CreateAsync(job.RequesterId, jobId, msg);
+                await _notificationDispatcher.PushUserNotificationAsync(job.RequesterId, msg, jobId);
             }
+
+            await _notificationDispatcher.PushJobStatusUpdateAsync(jobId, "Completed", result);
         }
         catch (Exception ex)
         {

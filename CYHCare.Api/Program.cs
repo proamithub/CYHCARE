@@ -2,8 +2,11 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using CYHCare.Api.Hubs;
 using CYHCare.Api.Middleware;
+using CYHCare.Api.Services;
 using CYHCare.Application;
+using CYHCare.Application.Common.Interfaces;
 using CYHCare.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +15,25 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// 2. Configure JWT Authentication
+// Register real-time SignalR notification dispatcher
+builder.Services.AddScoped<INotificationDispatcher, SignalRNotificationDispatcher>();
+
+// 2. Add SignalR
+builder.Services.AddSignalR();
+
+// 3. Configure CORS (allow Blazor Web and Hybrid apps)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.SetIsOriginAllowed(_ => true)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
+// 4. Configure JWT Authentication (with SignalR query string token support)
 var jwtSecret = builder.Configuration["JwtSettings:Secret"] 
     ?? "CYHCare_SuperSecretKey_For_Jwt_Auth_2026_Secure_Min32Chars!";
 var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "CYHCare.Api";
@@ -38,14 +59,29 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
+
+    // Extract access_token from query parameter for SignalR WebSocket handshake
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization();
 
-// 3. Controllers and Json Options
+// 5. Controllers
 builder.Services.AddControllers();
 
-// 4. Swagger with JWT Bearer Support
+// 6. Swagger with JWT Bearer Support
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -53,7 +89,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "CYH Care API",
         Version = "v1",
-        Description = "ASP.NET Core Web API for CYH Care (People Help People) on-demand hospital companion platform."
+        Description = "ASP.NET Core Web API & SignalR Tracking for CYH Care (People Help People)."
     });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -84,7 +120,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// 5. Global Exception Middleware (must be first in pipeline)
+// 7. Global Exception Middleware
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // Configure HTTP request pipeline
@@ -99,9 +135,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("CorsPolicy");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// 8. Map SignalR Tracking Hub
+app.MapHub<TrackingHub>("/hubs/tracking");
 
 app.Run();
