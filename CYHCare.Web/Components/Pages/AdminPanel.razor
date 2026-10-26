@@ -1,0 +1,291 @@
+@page "/admin"
+@rendermode InteractiveServer
+@using CYHCare.Application.Common.Interfaces
+@using CYHCare.Application.DTOs
+@using CYHCare.Web.Services
+@inject IAdminRepository AdminRepo
+@inject IHelperService HelperService
+@inject IPaymentRepository PaymentRepo
+@inject UserSessionService Session
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<PageTitle>Admin Panel — CYH Care</PageTitle>
+
+<div class="container-fluid py-4 px-md-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-shield-check text-primary me-2"></i>Admin Mission Control</h3>
+            <p class="text-muted mb-0">Live operations, helper KYC verification, active jobs & payouts</p>
+        </div>
+        <button class="btn btn-outline-primary btn-sm" @onclick="LoadDashboardData">
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh Data
+        </button>
+    </div>
+
+    <!-- KPI Summary Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm bg-primary text-white p-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-white-50 small text-uppercase fw-bold">Active Jobs</div>
+                        <h2 class="fw-bold mb-0">@(summary?.ActiveJobsCount ?? 0)</h2>
+                    </div>
+                    <div class="fs-1 opacity-50"><i class="bi bi-activity"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm bg-success text-white p-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-white-50 small text-uppercase fw-bold">On-Duty Helpers</div>
+                        <h2 class="fw-bold mb-0">@(summary?.OnDutyHelpersCount ?? 0)</h2>
+                    </div>
+                    <div class="fs-1 opacity-50"><i class="bi bi-person-check-fill"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm bg-warning text-dark p-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-muted small text-uppercase fw-bold">Pending KYC</div>
+                        <h2 class="fw-bold mb-0">@(summary?.PendingKycCount ?? pendingKycList.Count)</h2>
+                    </div>
+                    <div class="fs-1 opacity-50"><i class="bi bi-person-exclamation"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm bg-dark text-white p-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-white-50 small text-uppercase fw-bold">Completed Today</div>
+                        <h2 class="fw-bold mb-0">@(summary?.CompletedTodayCount ?? 0)</h2>
+                    </div>
+                    <div class="fs-1 opacity-50"><i class="bi bi-calendar2-check"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Nav Tabs -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "livemap" ? "active fw-bold" : "")" @onclick='() => SwitchTab("livemap")'>
+                <i class="bi bi-map-fill me-1 text-primary"></i> Live City Map
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "kyc" ? "active fw-bold" : "")" @onclick='() => SwitchTab("kyc")'>
+                <i class="bi bi-person-lines-fill me-1 text-warning"></i> Helper KYC (@pendingKycList.Count)
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "jobs" ? "active fw-bold" : "")" @onclick='() => SwitchTab("jobs")'>
+                <i class="bi bi-list-task me-1"></i> Active Jobs (@activeJobs.Count)
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab 1: Live City Map -->
+    @if (activeTab == "livemap")
+    {
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Real-Time Assistance & Helper Telemetry Map</h5>
+                <span class="badge bg-success"><i class="bi bi-broadcast me-1"></i> Live Stream</span>
+            </div>
+            <div class="card-body p-0">
+                <div id="adminLiveMap" style="height: 550px; width: 100%;"></div>
+            </div>
+        </div>
+    }
+
+    <!-- Tab 2: Helper KYC Verification -->
+    @if (activeTab == "kyc")
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="fw-bold mb-0">Pending Helper KYC Applications</h5>
+            </div>
+            <div class="card-body p-0">
+                @if (!pendingKycList.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-check-circle fs-1 text-success"></i>
+                        <h6 class="mt-2 fw-bold">All KYC Applications are Processed</h6>
+                        <p class="small">No pending verification requests at this moment.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light small">
+                                <tr>
+                                    <th>Helper ID</th>
+                                    <th>Full Name</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Hourly Rate</th>
+                                    <th>Registered Date</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in pendingKycList)
+                                {
+                                    <tr>
+                                        <td>#@item.HelperId</td>
+                                        <td class="fw-bold">@item.FullName</td>
+                                        <td>@item.Phone</td>
+                                        <td>@item.Email</td>
+                                        <td>₹@item.HourlyRate/hr</td>
+                                        <td>@item.RegisteredAt.ToLocalTime().ToString("g")</td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-success me-1" @onclick='() => ProcessKyc(item.HelperId, "Approved")'>
+                                                <i class="bi bi-check-lg me-1"></i> Approve
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" @onclick='() => ProcessKyc(item.HelperId, "Rejected")'>
+                                                <i class="bi bi-x-lg me-1"></i> Reject
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Tab 3: Active Jobs -->
+    @if (activeTab == "jobs")
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="fw-bold mb-0">Currently Active Assistance Requests</h5>
+            </div>
+            <div class="card-body p-0">
+                @if (!activeJobs.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-1"></i>
+                        <h6 class="mt-2 fw-bold">No Active Jobs Currently</h6>
+                        <p class="small">When users post jobs and helpers accept, they will appear here live.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light small">
+                                <tr>
+                                    <th>Job ID</th>
+                                    <th>Service</th>
+                                    <th>Requester</th>
+                                    <th>Assigned Helper</th>
+                                    <th>Destination Address</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var job in activeJobs)
+                                {
+                                    <tr>
+                                        <td>#@job.JobId</td>
+                                        <td class="fw-bold">@job.ServiceType</td>
+                                        <td>@job.RequesterName (@job.RequesterPhone)</td>
+                                        <td>@(job.HelperName ?? "Unassigned") (@(job.HelperPhone ?? "N/A"))</td>
+                                        <td class="small text-truncate" style="max-width: 250px;">@job.Address</td>
+                                        <td>
+                                            <span class="badge bg-primary">@job.Status</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private string activeTab = "livemap";
+    private AdminLiveSummaryDto? summary;
+    private List<PendingKycHelperDto> pendingKycList = new();
+    private List<AdminActiveJobDto> activeJobs = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardData();
+    }
+
+    private async Task LoadDashboardData()
+    {
+        try
+        {
+            summary = await AdminRepo.GetLiveSummaryAsync();
+            var kyc = await HelperService.GetPendingKycAsync();
+            pendingKycList = kyc.ToList();
+            var jobs = await AdminRepo.GetActiveJobsAsync();
+            activeJobs = jobs.ToList();
+        }
+        catch { }
+    }
+
+    private async Task SwitchTab(string tab)
+    {
+        activeTab = tab;
+        if (tab == "livemap")
+        {
+            await Task.Delay(300);
+            await InitAdminMap();
+        }
+    }
+
+    private async Task InitAdminMap()
+    {
+        // Center around Delhi (or first active job coordinates)
+        double centerLat = activeJobs.Any() ? (double)activeJobs.First().JobLat : 28.6139;
+        double centerLng = activeJobs.Any() ? (double)activeJobs.First().JobLng : 77.2090;
+
+        await JS.InvokeVoidAsync("cyhMaps.initMap", "adminLiveMap", centerLat, centerLng, 13);
+
+        foreach (var job in activeJobs)
+        {
+            // Destination Pin
+            await JS.InvokeVoidAsync("cyhMaps.addOrUpdateMarker", "adminLiveMap", $"job_{job.JobId}", 
+                (double)job.JobLat, (double)job.JobLng, 
+                $"<b>Job #{job.JobId}: {job.ServiceType}</b><br/>{job.Address}<br/>Status: {job.Status}", false);
+
+            // Helper Pin (if on-duty / moving)
+            if (job.HelperLastLat.HasValue && job.HelperLastLng.HasValue)
+            {
+                await JS.InvokeVoidAsync("cyhMaps.addOrUpdateMarker", "adminLiveMap", $"helper_{job.HelperId}", 
+                    (double)job.HelperLastLat.Value, (double)job.HelperLastLng.Value, 
+                    $"<b>Helper: {job.HelperName}</b><br/>Phone: {job.HelperPhone}", true);
+            }
+        }
+    }
+
+    private async Task ProcessKyc(int helperId, string status)
+    {
+        try
+        {
+            await HelperService.ApproveKycAsync(helperId, status, Session.UserId > 0 ? Session.UserId : null);
+            await LoadDashboardData();
+        }
+        catch { }
+    }
+}
