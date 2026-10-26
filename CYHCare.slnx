@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="CYHCare.Api/CYHCare.Api.csproj" />
+  <Project Path="CYHCare.Application/CYHCare.Application.csproj" />
+  <Project Path="CYHCare.Domain/CYHCare.Domain.csproj" />
+  <Project Path="CYHCare.Infrastructure/CYHCare.Infrastructure.csproj" />
+  <Project Path="CYHCare.Shared.UI/CYHCare.Shared.UI.csproj" />
+  <Project Path="CYHCare.Web/CYHCare.Web.csproj" />
+</Solution>
