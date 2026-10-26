@@ -972,3 +972,48 @@ BEGIN
     SELECT SCOPE_IDENTITY() AS [AuditId];
 END
 GO
+
+-- ============================================================================
+-- 24. sp_Job_GetById
+-- Purpose: Returns full details of a single job by JobId.
+-- ============================================================================
+CREATE OR ALTER PROCEDURE [dbo].[sp_Job_GetById]
+    @JobId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        j.[JobId],
+        j.[RequesterId],
+        j.[ServiceType],
+        j.[Address],
+        j.[Lat],
+        j.[Lng],
+        j.[ScheduledAt],
+        j.[Status],
+        j.[CreatedAt],
+        ja.[AssignmentId],
+        ja.[HelperId],
+        uHelper.[FullName] AS [HelperName],
+        uHelper.[Phone] AS [HelperPhone],
+        hp.[Rating] AS [HelperRating],
+        hp.[LastLat] AS [HelperLastLat],
+        hp.[LastLng] AS [HelperLastLng],
+        ja.[AcceptedAt],
+        ja.[ArrivedAt],
+        ja.[StartedAt],
+        ja.[EndedAt],
+        uReq.[FullName] AS [RequesterName],
+        uReq.[Phone] AS [RequesterPhone],
+        p.[Amount] AS [PaymentAmount],
+        p.[Status] AS [PaymentStatus]
+    FROM [dbo].[Jobs] j
+    INNER JOIN [dbo].[Users] uReq ON j.[RequesterId] = uReq.[UserId]
+    LEFT JOIN [dbo].[JobAssignments] ja ON j.[JobId] = ja.[JobId]
+    LEFT JOIN [dbo].[HelperProfiles] hp ON ja.[HelperId] = hp.[HelperId]
+    LEFT JOIN [dbo].[Users] uHelper ON hp.[UserId] = uHelper.[UserId]
+    LEFT JOIN [dbo].[Payments] p ON ja.[AssignmentId] = p.[AssignmentId]
+    WHERE j.[JobId] = @JobId;
+END
+GO

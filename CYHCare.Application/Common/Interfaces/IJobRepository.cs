@@ -14,6 +14,11 @@ public interface IJobRepository
     Task<Job?> CreateAsync(int requesterId, string serviceType, string address, decimal lat, decimal lng, DateTime scheduledAt);
 
     /// <summary>
+    /// Calls sp_Job_GetById to fetch full details of a specific job.
+    /// </summary>
+    Task<JobResponseDto?> GetByIdAsync(int jobId);
+
+    /// <summary>
     /// Calls sp_Job_GetNearbyHelpers to locate active helpers within given radius using Haversine formula.
     /// </summary>
     Task<IEnumerable<NearbyHelperDto>> GetNearbyHelpersAsync(decimal jobLat, decimal jobLng, decimal radiusKm = 5.0m);

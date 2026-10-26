@@ -41,6 +41,21 @@ public class JobRepository : IJobRepository
         );
     }
 
+    public async Task<JobResponseDto?> GetByIdAsync(int jobId)
+    {
+        _logger.LogInformation("Calling sp_Job_GetById for JobId: {JobId}", jobId);
+
+        using var connection = _connectionFactory.CreateConnection();
+        var parameters = new DynamicParameters();
+        parameters.Add("@JobId", jobId);
+
+        return await connection.QuerySingleOrDefaultAsync<JobResponseDto>(
+            "sp_Job_GetById",
+            parameters,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
     public async Task<IEnumerable<NearbyHelperDto>> GetNearbyHelpersAsync(decimal jobLat, decimal jobLng, decimal radiusKm = 5.0m)
     {
         _logger.LogInformation("Calling sp_Job_GetNearbyHelpers for Lat: {Lat}, Lng: {Lng}, Radius: {Radius}km", jobLat, jobLng, radiusKm);
