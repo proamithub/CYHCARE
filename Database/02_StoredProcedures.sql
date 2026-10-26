@@ -172,10 +172,9 @@ BEGIN
         u.[Email],
         hp.[KycStatus],
         hp.[HourlyRate],
-        hp.[CreatedAt] AS [RegisteredAt]
+        u.[CreatedAt] AS [RegisteredAt]
     FROM [dbo].[HelperProfiles] hp
     INNER JOIN [dbo].[Users] u ON hp.[UserId] = u.[UserId]
-    CROSS APPLY (SELECT u.[CreatedAt]) AS hp2(CreatedAt)
     WHERE hp.[KycStatus] = 'Pending'
     ORDER BY u.[CreatedAt] ASC;
 END
