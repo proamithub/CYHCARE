@@ -356,7 +356,32 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadDashboardData();
+        if (Session.IsAuthenticated && Session.Role == "Admin")
+        {
+            await LoadDashboardData();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && (!Session.IsAuthenticated || Session.Role != "Admin"))
+        {
+            try
+            {
+                var json = await JS.InvokeAsync<string?>("localStorage.getItem", "cyh_auth_session");
+                if (!string.IsNullOrEmpty(json))
+                {
+                    var auth = System.Text.Json.JsonSerializer.Deserialize<AuthResponseDto>(json);
+                    if (auth != null && auth.Role == "Admin")
+                    {
+                        Session.SetSession(auth);
+                        await LoadDashboardData();
+                        StateHasChanged();
+                    }
+                }
+            }
+            catch { }
+        }
     }
 
     private async Task LoadDashboardData()

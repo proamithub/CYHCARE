@@ -35,7 +35,7 @@ BEGIN
         '9999999999',
         N'admin@cyhcare.com',
         -- BCrypt hash for: Admin@123 (WorkFactor 11)
-        N'$2a$11$jE1e8wQzP/P/n9E35pG9j.yCq9P5vV3X/a4C0T4A/vQ2w9q/u7Icy',
+        N'$2a$11$SEWakc4kVjj3r0E7fl6qNOQzOB4TDSHGrTXRCVEfbaRyxqj.BwSjq',
         'Admin',
         1,
         1,

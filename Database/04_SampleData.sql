@@ -11,20 +11,24 @@ SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
 GO
 
--- Standard BCrypt Hash for password: Password@123
-DECLARE @DefaultPasswordHash NVARCHAR(200) = N'$2a$11$jE1e8wQzP/P/n9E35pG9j.yCq9P5vV3X/a4C0T4A/vQ2w9q/u7Icy';
+-- Standard BCrypt Hashes:
+-- Admin: Admin@123
+-- User:  User@123
+-- Helper: Helper@123
+DECLARE @UserPasswordHash NVARCHAR(200)   = N'$2a$11$q2bTriE1LzfR2VLYXjKAuup9wMvIkLUd9e9KkUEtTYVd.otv8MPtG';
+DECLARE @HelperPasswordHash NVARCHAR(200) = N'$2a$11$Wx26024s8HLArGwXTgcdSeCJRfmdpOaHv8auJWLIif/mB5W2VHe0q';
 
 -- 1. Seed Requesters (Users)
 IF NOT EXISTS (SELECT 1 FROM [dbo].[Users] WHERE [Email] = 'ramesh.patient@gmail.com')
 BEGIN
     INSERT INTO [dbo].[Users] ([FullName], [Phone], [Email], [PasswordHash], [Role], [IsVerified], [IsActive])
-    VALUES (N'Ramesh Kumar', '9876543210', 'ramesh.patient@gmail.com', @DefaultPasswordHash, 'User', 1, 1);
+    VALUES (N'Ramesh Kumar', '9876543210', 'ramesh.patient@gmail.com', @UserPasswordHash, 'User', 1, 1);
 END
 
 IF NOT EXISTS (SELECT 1 FROM [dbo].[Users] WHERE [Email] = 'sunita.sharma@gmail.com')
 BEGIN
     INSERT INTO [dbo].[Users] ([FullName], [Phone], [Email], [PasswordHash], [Role], [IsVerified], [IsActive])
-    VALUES (N'Sunita Sharma', '9811223344', 'sunita.sharma@gmail.com', @DefaultPasswordHash, 'User', 1, 1);
+    VALUES (N'Sunita Sharma', '9811223344', 'sunita.sharma@gmail.com', @UserPasswordHash, 'User', 1, 1);
 END
 
 -- 2. Seed Helpers
@@ -32,7 +36,7 @@ DECLARE @Helper1UserId INT;
 IF NOT EXISTS (SELECT 1 FROM [dbo].[Users] WHERE [Email] = 'rohit.helper@gmail.com')
 BEGIN
     INSERT INTO [dbo].[Users] ([FullName], [Phone], [Email], [PasswordHash], [Role], [IsVerified], [IsActive])
-    VALUES (N'Rohit Verma', '9899112233', 'rohit.helper@gmail.com', @DefaultPasswordHash, 'Helper', 1, 1);
+    VALUES (N'Rohit Verma', '9899112233', 'rohit.helper@gmail.com', @HelperPasswordHash, 'Helper', 1, 1);
     SET @Helper1UserId = SCOPE_IDENTITY();
 
     INSERT INTO [dbo].[HelperProfiles] ([UserId], [KycStatus], [IsOnDuty], [LocationSharing], [LastLat], [LastLng], [LastUpdate], [HourlyRate], [Rating])
@@ -43,7 +47,7 @@ DECLARE @Helper2UserId INT;
 IF NOT EXISTS (SELECT 1 FROM [dbo].[Users] WHERE [Email] = 'anjali.helper@gmail.com')
 BEGIN
     INSERT INTO [dbo].[Users] ([FullName], [Phone], [Email], [PasswordHash], [Role], [IsVerified], [IsActive])
-    VALUES (N'Anjali Singh', '9877445566', 'anjali.helper@gmail.com', @DefaultPasswordHash, 'Helper', 1, 1);
+    VALUES (N'Anjali Singh', '9877445566', 'anjali.helper@gmail.com', @HelperPasswordHash, 'Helper', 1, 1);
     SET @Helper2UserId = SCOPE_IDENTITY();
 
     INSERT INTO [dbo].[HelperProfiles] ([UserId], [KycStatus], [IsOnDuty], [LocationSharing], [LastLat], [LastLng], [LastUpdate], [HourlyRate], [Rating])
@@ -54,7 +58,7 @@ DECLARE @Helper3UserId INT;
 IF NOT EXISTS (SELECT 1 FROM [dbo].[Users] WHERE [Email] = 'vikram.pending@gmail.com')
 BEGIN
     INSERT INTO [dbo].[Users] ([FullName], [Phone], [Email], [PasswordHash], [Role], [IsVerified], [IsActive])
-    VALUES (N'Vikram Yadav', '9812345678', 'vikram.pending@gmail.com', @DefaultPasswordHash, 'Helper', 0, 1);
+    VALUES (N'Vikram Yadav', '9812345678', 'vikram.pending@gmail.com', @HelperPasswordHash, 'Helper', 0, 1);
     SET @Helper3UserId = SCOPE_IDENTITY();
 
     INSERT INTO [dbo].[HelperProfiles] ([UserId], [KycStatus], [IsOnDuty], [LocationSharing], [LastLat], [LastLng], [LastUpdate], [HourlyRate], [Rating])

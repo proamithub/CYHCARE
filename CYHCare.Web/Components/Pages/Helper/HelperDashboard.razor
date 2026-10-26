@@ -234,6 +234,28 @@ else
         }
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !Session.IsAuthenticated)
+        {
+            try
+            {
+                var json = await JS.InvokeAsync<string?>("localStorage.getItem", "cyh_auth_session");
+                if (!string.IsNullOrEmpty(json))
+                {
+                    var auth = System.Text.Json.JsonSerializer.Deserialize<AuthResponseDto>(json);
+                    if (auth != null && auth.Role == "Helper")
+                    {
+                        Session.SetSession(auth);
+                        await LoadHelperData();
+                        StateHasChanged();
+                    }
+                }
+            }
+            catch { }
+        }
+    }
+
     private async Task LoadHelperData()
     {
         if (!Session.HelperId.HasValue) return;

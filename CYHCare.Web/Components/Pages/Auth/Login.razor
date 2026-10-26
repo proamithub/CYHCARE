@@ -4,6 +4,7 @@
 @inject IAuthService AuthService
 @inject UserSessionService Session
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <PageTitle>Sign In — CYH Care</PageTitle>
 
@@ -112,6 +113,13 @@
         {
             var res = await AuthService.LoginAsync(model);
             Session.SetSession(res);
+
+            try
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(res);
+                await JS.InvokeVoidAsync("localStorage.setItem", "cyh_auth_session", json);
+            }
+            catch { }
 
             // Redirect to the respective area based on role
             if (res.Role == "Admin")
