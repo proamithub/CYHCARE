@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using CYHCare.Application.Common.Interfaces;
 using CYHCare.Infrastructure.Data;
 using CYHCare.Infrastructure.Repositories;
+using CYHCare.Infrastructure.Services;
 
 namespace CYHCare.Infrastructure;
 
@@ -12,6 +13,10 @@ public static class DependencyInjection
     {
         // Connection Factory
         services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
+
+        // Security & Token Services
+        services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
+        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
 
         // Dapper Repositories (One per entity, 100% Stored Procedures)
         services.AddScoped<IUserRepository, UserRepository>();
